@@ -1,0 +1,25 @@
+{
+  "packageId": "az.qdx.dircelisxeritesi",
+  "host": "REPLACE-WITH-YOUR-DOMAIN.onrender.com",
+  "name": "Qarabağ Dirçəliş Xəritəsi",
+  "launcherName": "QDX",
+  "display": "standalone",
+  "themeColor": "#6D28D9",
+  "navigationColor": "#6D28D9",
+  "backgroundColor": "#F6F7FB",
+  "enableNotifications": false,
+  "startUrl": "/",
+  "iconUrl": "https://REPLACE-WITH-YOUR-DOMAIN.onrender.com/icon.svg",
+  "splashScreenFadeOutDuration": 300,
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [
+    { "name": "Xəritə", "shortName": "Xəritə", "url": "/" },
+    { "name": "Dirçəliş İndeksi", "shortName": "İndeks", "url": "/analytics" }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://REPLACE-WITH-YOUR-DOMAIN.onrender.com/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "enableSiteSettingsShortcut": true,
+  "orientation": "portrait"
+}

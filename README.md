@@ -28,6 +28,14 @@ the public "Böyük Qayıdış" narrative.
 | 🔐 RBAC | everywhere | guest → read-only · user → reviews/posts/check-ins · admin/moderator → moderation + location CRUD |
 | 📚 Swagger / OpenAPI | `/api/docs` | Interactive, with JWT authorize button |
 
+## ⚡ One-click demo (Windows)
+
+- **`start-demo.cmd`** — starts the API on port 5001 which also serves the built
+  app (single process) and opens http://localhost:5001 in the browser.
+- **`share-live-link.cmd`** — opens a free Cloudflare quick tunnel and prints a
+  public `https://….trycloudflare.com` URL you can share with mentors/jury.
+  No account needed; the link lives while the window stays open.
+
 ## 🚀 Quickstart (dev)
 
 Requires **Node.js ≥ 18.17** (this workspace includes a portable Node under

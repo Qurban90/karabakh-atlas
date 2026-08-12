@@ -99,9 +99,21 @@ export function createApp() {
      the API server also serves the app with an SPA history fallback. */
   const distDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'mobile', 'dist');
   if (fs.existsSync(distDir)) {
-    app.use(express.static(distDir, { maxAge: '1h' }));
+    // hashed /assets get long cache; entry documents must always revalidate
+    const noStore = ['index.html', 'sw.js', 'manifest.webmanifest'];
+    app.use(
+      express.static(distDir, {
+        maxAge: '7d',
+        setHeaders: (res, filePath) => {
+          if (noStore.some((f) => filePath.endsWith(f))) {
+            res.setHeader('Cache-Control', 'no-cache');
+          }
+        }
+      })
+    );
     app.get('*', (req, res, next) => {
       if (req.path.startsWith('/api')) return next();
+      res.set('Cache-Control', 'no-cache');
       res.sendFile(path.join(distDir, 'index.html'));
     });
     console.log('[qdx] serving mobile/dist — app available on the API port');
