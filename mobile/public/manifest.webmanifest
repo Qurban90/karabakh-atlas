@@ -1,0 +1,10 @@
+{
+  "name": "Qarabağ Dirçəliş Xəritəsi",
+  "short_name": "QDX",
+  "description": "Şuşa və Xankəndinin dirçəlişini interaktiv xəritədə izləyin (2023–2026).",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F6F7FB",
+  "theme_color": "#6D28D9",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

@@ -1,0 +1,28 @@
+# Qarabağ Dirçəliş Xəritəsi — full stack
+#   docker compose up --build
+#   → app:  http://localhost:8080
+#   → api:  http://localhost:5001/api  ·  docs: http://localhost:5001/api/docs
+services:
+  server:
+    build: ./server
+    environment:
+      NODE_ENV: production
+      PORT: 5001
+      JWT_SECRET: ${JWT_SECRET:-qdx-compose-demo-secret-set-your-own}
+      CORS_ORIGIN: '*'
+    ports:
+      - '5001:5001'
+    volumes:
+      - qdx-data:/app/data
+    restart: unless-stopped
+
+  mobile:
+    build: ./mobile
+    depends_on:
+      - server
+    ports:
+      - '8080:80'
+    restart: unless-stopped
+
+volumes:
+  qdx-data:

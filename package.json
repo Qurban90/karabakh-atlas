@@ -1,0 +1,14 @@
+{
+  "name": "qarabag-dircelis-xeritesi",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Qarabağ Dirçəliş Xəritəsi — interactive revival map of Khankendi & Shusha (2023–2026). Mobile-first PWA + REST API.",
+  "scripts": {
+    "install:all": "npm --prefix server install && npm --prefix mobile install",
+    "dev:server": "npm --prefix server run dev",
+    "dev:mobile": "npm --prefix mobile run dev",
+    "build": "npm --prefix server run check && npm --prefix mobile run build",
+    "start:server": "npm --prefix server run start",
+    "check": "npm --prefix server run check && npm --prefix mobile run typecheck"
+  }
+}

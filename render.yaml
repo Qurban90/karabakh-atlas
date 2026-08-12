@@ -1,0 +1,17 @@
+# Render.com blueprint — SINGLE web service: the API also serves the built app
+# (server/src/app.js bundles mobile/dist). Connect the repo on render.com and
+# this deploys in one click; PORT is injected by Render automatically.
+services:
+  - type: web
+    name: qdx-app
+    runtime: node
+    buildCommand: npm install --prefix server && npm install --prefix mobile && npm run build --prefix mobile
+    startCommand: npm run start --prefix server
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: '*'
