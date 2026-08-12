@@ -1,11 +1,17 @@
 # Render.com blueprint — SINGLE web service: the API also serves the built app
 # (server/src/app.js bundles mobile/dist). Connect the repo on render.com and
 # this deploys in one click; PORT is injected by Render automatically.
+#
+# NOTE: --include=dev is required on the mobile install. Render injects this
+# service's NODE_ENV=production env var into the build step too, and npm
+# treats that as an implicit --omit=dev — which silently drops vite,
+# typescript's type packages (@types/leaflet, @types/react-dom, ...), and
+# breaks the `tsc && vite build` step. --include=dev overrides that.
 services:
   - type: web
     name: qdx-app
     runtime: node
-    buildCommand: npm install --prefix server && npm install --prefix mobile && npm run build --prefix mobile
+    buildCommand: npm install --prefix server && npm install --include=dev --prefix mobile && npm run build --prefix mobile
     startCommand: npm run start --prefix server
     healthCheckPath: /api/health
     envVars:
