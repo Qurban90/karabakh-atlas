@@ -1,12 +1,21 @@
-# Render.com blueprint — SINGLE web service: the API also serves the built app
-# (server/src/app.js bundles mobile/dist). Connect the repo on render.com and
-# this deploys in one click; PORT is injected by Render automatically.
+# Render.com blueprint — web service + managed Postgres.
+# The API also serves the built app (server/src/app.js bundles mobile/dist),
+# so one web service hosts everything; PORT is injected by Render.
 #
-# NOTE: --include=dev is required on the mobile install. Render injects this
-# service's NODE_ENV=production env var into the build step too, and npm
-# treats that as an implicit --omit=dev — which silently drops vite,
-# typescript's type packages (@types/leaflet, @types/react-dom, ...), and
-# breaks the `tsc && vite build` step. --include=dev overrides that.
+# NOTE (existing services): Blueprints don't retro-sync settings into an
+# already-created service. If qdx-app predates the databases block below,
+# create the database once in the dashboard (New → PostgreSQL, Free) and add
+# its Internal Database URL to qdx-app as the DATABASE_URL env var.
+#
+# NOTE (build): mobile/.npmrc pins include=dev because Render injects
+# NODE_ENV=production into the build step, which would otherwise make npm
+# omit vite/typescript devDependencies and break `tsc && vite build`.
+databases:
+  - name: qdx-db
+    plan: free
+    databaseName: qdx
+    user: qdx
+
 services:
   - type: web
     name: qdx-app
@@ -21,3 +30,7 @@ services:
         generateValue: true
       - key: CORS_ORIGIN
         value: '*'
+      - key: DATABASE_URL
+        fromDatabase:
+          name: qdx-db
+          property: connectionString

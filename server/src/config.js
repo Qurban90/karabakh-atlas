@@ -36,7 +36,17 @@ export const config = {
     authMax: Number(process.env.RATE_AUTH_MAX || 30),
     writeMax: Number(process.env.RATE_WRITE_MAX || 150)
   },
-  /** Optional path for JSON write-through persistence (kept off in tests). */
+  /**
+   * Postgres connection string. When set, the store persists to Postgres;
+   * when empty (or the DB is unreachable) it falls back to the JSON file.
+   * Render: injected automatically via render.yaml fromDatabase.
+   */
+  databaseUrl: process.env.DATABASE_URL || '',
+  /** External managed PG (e.g. render.com external URL) needs TLS; internal doesn't. */
+  databaseSsl:
+    process.env.PGSSL === 'require' ||
+    /render\.com|sslmode=require/.test(process.env.DATABASE_URL || ''),
+  /** Optional path for JSON write-through persistence (fallback backend). */
   persistFile: process.env.PERSIST_FILE || path.join(rootDir, 'data', 'runtime-db.json'),
   persistEnabled: process.env.PERSIST !== 'off'
 };

@@ -3,17 +3,19 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { config } from './config.js';
 import { hashPassword } from './lib/passwords.js';
+import { initSchema, getMeta, syncAll, loadAll } from './db.js';
 import { locationsSeed } from './data/locations.data.js';
 import { timelineSeed } from './data/timeline.data.js';
 import { revivalIndexSeed } from './data/analytics.data.js';
 import { usersSeed, reviewsSeed, postsSeed, checkinsSeed } from './data/community.data.js';
 
 /**
- * In-memory data store with JSON write-through persistence.
- * Static reference data (locations, timeline, revival index) always comes from
- * seed files; community data (users, reviews, posts, check-ins) is persisted
- * to data/runtime-db.json so it survives restarts. Swap for Postgres/PostGIS
- * in production — the module API is repository-shaped on purpose.
+ * Data store: an in-memory working set (demo-scale dataset) persisted to
+ * **Postgres** when DATABASE_URL is set — hydrated at boot, transactionally
+ * synced on every debounced persist(). Falls back to a JSON file when no
+ * database is configured/reachable, so `npm run dev` works with zero setup.
+ *
+ * Bump SEED_VERSION after editing seed files to rebuild persisted data.
  */
 const SEED_VERSION = 3;
 
@@ -26,6 +28,8 @@ class Store {
     this.checkins = new Map();
     this.timeline = [];
     this.revivalIndex = [];
+    /** 'postgres' | 'json' — reported by /api/health */
+    this.backend = 'json';
     this._saveTimer = null;
   }
 
@@ -33,28 +37,71 @@ class Store {
     return `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
   }
 
-  init() {
-    // static reference data
-    for (const loc of locationsSeed) this.locations.set(loc.id, { ...loc });
+  async init() {
+    // static reference data always comes from code
     this.timeline = timelineSeed.map((e) => ({ ...e }));
     this.revivalIndex = revivalIndexSeed.map((e) => ({ ...e }));
 
-    if (this._loadPersisted()) {
+    if (config.databaseUrl) {
+      try {
+        await this._initPostgres();
+        this.backend = 'postgres';
+        console.log('[qdx] persistence: Postgres');
+        return;
+      } catch (err) {
+        console.warn('[qdx] Postgres unreachable, falling back to JSON file:', err.message);
+      }
+    }
+    this._initJson();
+    this.backend = 'json';
+    console.log('[qdx] persistence: JSON file (set DATABASE_URL for Postgres)');
+  }
+
+  /* ---------- Postgres backend ---------- */
+
+  async _initPostgres() {
+    await initSchema();
+    const version = await getMeta('seed_version');
+    if (version === String(SEED_VERSION)) {
+      await loadAll(this);
+    } else {
+      this._seedCommunity();
+      await syncAll(this, SEED_VERSION); // fresh seed → write through
+      console.log('[qdx] Postgres seeded (seed version', SEED_VERSION + ')');
+    }
+  }
+
+  /* ---------- JSON fallback backend ---------- */
+
+  _initJson() {
+    for (const loc of locationsSeed) this.locations.set(loc.id, { ...loc });
+    if (this._loadPersistedJson()) {
       console.log('[qdx] community data loaded from persistence file');
       return;
     }
-    // seed community data (hash seed passwords at boot)
-    for (const u of usersSeed) {
-      const { password, ...rest } = u;
-      this.users.set(u.id, { ...rest, passwordHash: hashPassword(password) });
-    }
+    this._seedCommunityUsers();
     for (const r of reviewsSeed) this.reviews.set(r.id, { ...r });
     for (const p of postsSeed) this.posts.set(p.id, { ...p, likes: [...p.likes], comments: p.comments.map((c) => ({ ...c })) });
     for (const c of checkinsSeed) this.checkins.set(c.id, { ...c });
     this.persist();
   }
 
-  _loadPersisted() {
+  _seedCommunity() {
+    for (const loc of locationsSeed) this.locations.set(loc.id, { ...loc });
+    this._seedCommunityUsers();
+    for (const r of reviewsSeed) this.reviews.set(r.id, { ...r });
+    for (const p of postsSeed) this.posts.set(p.id, { ...p, likes: [...p.likes], comments: p.comments.map((c) => ({ ...c })) });
+    for (const c of checkinsSeed) this.checkins.set(c.id, { ...c });
+  }
+
+  _seedCommunityUsers() {
+    for (const u of usersSeed) {
+      const { password, ...rest } = u;
+      this.users.set(u.id, { ...rest, passwordHash: hashPassword(password) });
+    }
+  }
+
+  _loadPersistedJson() {
     if (!config.persistEnabled) return false;
     try {
       if (!fs.existsSync(config.persistFile)) return false;
@@ -71,34 +118,47 @@ class Store {
     }
   }
 
-  /** Debounced write-through — cheap enough for a demo-scale dataset. */
+  /* ---------- write-through (debounced, both backends) ---------- */
+
   persist() {
-    if (!config.persistEnabled) return;
     clearTimeout(this._saveTimer);
     this._saveTimer = setTimeout(() => {
-      try {
-        fs.mkdirSync(path.dirname(config.persistFile), { recursive: true });
-        fs.writeFileSync(
-          config.persistFile,
-          JSON.stringify(
-            {
-              version: SEED_VERSION,
-              savedAt: new Date().toISOString(),
-              users: [...this.users.values()],
-              reviews: [...this.reviews.values()],
-              posts: [...this.posts.values()],
-              checkins: [...this.checkins.values()]
-            },
-            null,
-            2
-          )
+      if (this.backend === 'postgres') {
+        syncAll(this, SEED_VERSION).catch((err) =>
+          console.warn('[qdx] Postgres sync failed:', err.message)
         );
-      } catch (err) {
-        console.warn('[qdx] persist failed:', err.message);
+      } else {
+        this._persistJson();
       }
     }, 300);
     this._saveTimer.unref?.();
   }
+
+  _persistJson() {
+    if (!config.persistEnabled) return;
+    try {
+      fs.mkdirSync(path.dirname(config.persistFile), { recursive: true });
+      fs.writeFileSync(
+        config.persistFile,
+        JSON.stringify(
+          {
+            version: SEED_VERSION,
+            savedAt: new Date().toISOString(),
+            users: [...this.users.values()],
+            reviews: [...this.reviews.values()],
+            posts: [...this.posts.values()],
+            checkins: [...this.checkins.values()]
+          },
+          null,
+          2
+        )
+      );
+    } catch (err) {
+      console.warn('[qdx] persist failed:', err.message);
+    }
+  }
+
+  /* ---------- queries ---------- */
 
   findUserByEmail(email) {
     const needle = String(email).toLowerCase();
@@ -127,4 +187,3 @@ class Store {
 }
 
 export const store = new Store();
-store.init();

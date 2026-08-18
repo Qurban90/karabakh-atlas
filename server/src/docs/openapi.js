@@ -212,7 +212,25 @@ export const openapiSpec = {
       get: {
         tags: ['Analytics'],
         summary: 'Service health probe',
-        responses: { 200: { description: 'OK' } }
+        description: '`db` reports the active persistence backend: `postgres` when DATABASE_URL is set and reachable, `json` when running on the local-file fallback.',
+        responses: {
+          200: {
+            description: 'OK',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    status: { type: 'string', example: 'ok' },
+                    env: { type: 'string', example: 'production' },
+                    db: { type: 'string', enum: ['postgres', 'json'], example: 'postgres' },
+                    time: { type: 'string', format: 'date-time' }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     '/auth/register': {

@@ -1,19 +1,36 @@
-# Qarabağ Dirçəliş Xəritəsi — full stack
+# Qarabağ Dirçəliş Xəritəsi — full stack (Postgres + API + nginx client)
 #   docker compose up --build
 #   → app:  http://localhost:8080
 #   → api:  http://localhost:5001/api  ·  docs: http://localhost:5001/api/docs
 services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: qdx
+      POSTGRES_PASSWORD: qdx
+      POSTGRES_DB: qdx
+    volumes:
+      - qdx-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U qdx -d qdx']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
   server:
     build: ./server
     environment:
       NODE_ENV: production
       PORT: 5001
+      DATABASE_URL: postgres://qdx:qdx@db:5432/qdx
       JWT_SECRET: ${JWT_SECRET:-qdx-compose-demo-secret-set-your-own}
       CORS_ORIGIN: '*'
     ports:
       - '5001:5001'
-    volumes:
-      - qdx-data:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
     restart: unless-stopped
 
   mobile:
@@ -25,4 +42,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  qdx-data:
+  qdx-pgdata:

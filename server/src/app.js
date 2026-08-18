@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import swaggerUi from 'swagger-ui-express';
 import { config } from './config.js';
+import { store } from './store.js';
 import { sanitizeBody } from './lib/sanitize.js';
 import { notFoundHandler, errorHandler } from './lib/errors.js';
 import { openapiSpec } from './docs/openapi.js';
@@ -83,7 +84,7 @@ export function createApp() {
 
   /* ---------- routes ---------- */
   app.get('/api/health', (_req, res) =>
-    res.json({ status: 'ok', env: config.env, time: new Date().toISOString() })
+    res.json({ status: 'ok', env: config.env, db: store.backend, time: new Date().toISOString() })
   );
   app.use('/api/auth', authRouter);
   app.use('/api/locations', locationsRouter);
