@@ -72,11 +72,37 @@ reports which backend is active: `{"db":"postgres"}` or `{"db":"json"}`.
 
 | Role | E-mail | Password |
 | --- | --- | --- |
-| Admin | `admin@qdx.az` | `Admin123!` |
 | User | `aysel@demo.az` | `Demo123!` |
-| Moderator | `leyla@demo.az` | `Demo123!` |
+| Admin | `admin@qdx.az` | `Admin123!` — **development only** |
+| Moderator | `leyla@demo.az` | `Demo123!` — **development only** |
 
-(Or one-tap "Demo istifadəçi / Admin" buttons on the login screen.)
+Staff accounts can delete anyone's content, so the seed password (which is
+public — it ships in this repo) is refused in production. There, set
+`ADMIN_PASSWORD` / `MODERATOR_PASSWORD` in the environment; if you don't, the
+server generates a random one at first boot and prints it once to its log.
+The login screen's one-tap **Admin** shortcut is likewise stripped from
+production builds — only the regular demo user shortcut ships publicly.
+
+## 📱 Android APK
+
+`releases/QDX-Qarabag-Dircelis-Xeritesi-1.0.0.apk` — signed, installable
+(Android 5.0+, ~1 MB). Built with **Bubblewrap** as a Trusted Web Activity:
+the app is a native shell around the live PWA, so it stays in sync with the
+deployment automatically — no rebuild needed when the site updates.
+
+Install by copying it to a phone and opening it (allow "install from unknown
+sources" once). Because `.well-known/assetlinks.json` is served with the
+signing key's fingerprint, Android verifies the link and runs it fullscreen,
+without a browser address bar.
+
+Rebuilding (needs JDK 17 + Android SDK):
+
+```bash
+bubblewrap update && bubblewrap build   # from store/twa-manifest.json
+```
+
+The signing key lives outside this repo. **Keep it** — Play Store updates must
+be signed with the same key, and `assetlinks.json` is tied to its fingerprint.
 
 ## ✅ Build verification (zero errors)
 
