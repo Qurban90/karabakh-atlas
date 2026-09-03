@@ -97,8 +97,29 @@ class Store {
   _seedCommunityUsers() {
     for (const u of usersSeed) {
       const { password, ...rest } = u;
-      this.users.set(u.id, { ...rest, passwordHash: hashPassword(password) });
+      this.users.set(u.id, { ...rest, passwordHash: hashPassword(this._passwordFor(u)) });
     }
+  }
+
+  /**
+   * Staff accounts (admin/moderator) can delete anyone's content, so the
+   * seed password — which is public, it ships in this repo — must never be
+   * live on a public deployment. In production the password comes from
+   * ADMIN_PASSWORD / MODERATOR_PASSWORD, or is randomly generated and
+   * printed once to the server log for the operator to pick up.
+   */
+  _passwordFor(user) {
+    if (user.role === 'user') return user.password;
+    const fromEnv = config.staffPasswords[user.role];
+    if (fromEnv) return fromEnv;
+    if (!config.isProd) return user.password; // frictionless local demos
+    const generated = crypto.randomBytes(12).toString('base64url');
+    const envName = `${user.role.toUpperCase()}_PASSWORD`;
+    console.warn(
+      `[qdx] ${envName} is not set — generated a one-off password for ${user.email}: ${generated}`
+    );
+    console.warn(`      Set ${envName} in the environment to choose your own.`);
+    return generated;
   }
 
   _loadPersistedJson() {

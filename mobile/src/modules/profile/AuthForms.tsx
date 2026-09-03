@@ -124,13 +124,18 @@ export function AuthForms() {
         </button>
       </div>
 
+      {/* Demo shortcut for jury/mentor evaluation. The admin shortcut is dev-only:
+          on a public build it would hand moderation rights to any visitor, and the
+          production admin password is env-driven (see server/src/store.js). */}
       <div className="demo-fill">
         <button className="btn btn--ghost btn--sm" style={{ flex: 1 }} onClick={() => fill('aysel@demo.az', 'Demo123!')}>
           <Sparkles size={14} /> Demo istifadəçi
         </button>
-        <button className="btn btn--ghost btn--sm" style={{ flex: 1 }} onClick={() => fill('admin@qdx.az', 'Admin123!')}>
-          <ShieldCheck size={14} /> Admin
-        </button>
+        {import.meta.env.DEV && (
+          <button className="btn btn--ghost btn--sm" style={{ flex: 1 }} onClick={() => fill('admin@qdx.az', 'Admin123!')}>
+            <ShieldCheck size={14} /> Admin
+          </button>
+        )}
       </div>
     </div>
   );

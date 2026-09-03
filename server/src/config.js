@@ -28,6 +28,16 @@ export const config = {
   isProd: NODE_ENV === 'production',
   port: Number(process.env.PORT || 5001),
   jwtSecret: process.env.JWT_SECRET || 'qdx-dev-secret-change-me',
+  /**
+   * Passwords for the seeded staff accounts. Staff can delete anyone's
+   * content, so the well-known seed password must never reach a public
+   * deployment — in production these come from the environment, or are
+   * randomly generated at seed time (see store._passwordFor).
+   */
+  staffPasswords: {
+    admin: process.env.ADMIN_PASSWORD || '',
+    moderator: process.env.MODERATOR_PASSWORD || ''
+  },
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
   corsOrigin: process.env.CORS_ORIGIN || '*',
   rate: {

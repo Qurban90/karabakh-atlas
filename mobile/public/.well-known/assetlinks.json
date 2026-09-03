@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "az.qdx.dircelisxeritesi",
+      "sha256_cert_fingerprints": [
+        "03:9E:9B:A5:A6:20:33:B7:3C:8B:10:66:83:80:15:68:6C:96:D9:9B:AD:F6:33:34:BB:C4:CE:16:0A:9E:19:62"
+      ]
+    }
+  }
+]
