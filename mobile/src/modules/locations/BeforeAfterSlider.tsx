@@ -16,11 +16,13 @@ import { LocationImage } from '../../components/LocationImage';
 export function BeforeAfterSlider({
   id,
   category,
-  photos
+  photos,
+  name
 }: {
   id: string;
   category: Category;
   photos: LocationPhotos | null;
+  name: string;
 }) {
   const [split, setSplit] = useState(50);
   const ref = useRef<HTMLDivElement>(null);
@@ -28,8 +30,11 @@ export function BeforeAfterSlider({
 
   function updateFromClientX(clientX: number) {
     const rect = ref.current?.getBoundingClientRect();
-    if (!rect) return;
+    // A zero-width rect (first paint, or a hidden tab) would make this NaN,
+    // and `--split: NaN%` silently drops the handle back to its default.
+    if (!rect || rect.width === 0) return;
     const pct = ((clientX - rect.left) / rect.width) * 100;
+    if (!Number.isFinite(pct)) return;
     setSplit(Math.min(96, Math.max(4, pct)));
   }
 
@@ -37,7 +42,7 @@ export function BeforeAfterSlider({
 
   // case 2 — a real photo but nothing genuine to compare it against
   if (photos?.after && !photos.before) {
-    return <LocationImage id={id} category={category} photos={photos} height={280} eager />;
+    return <LocationImage id={id} category={category} photos={photos} name={name} height={280} eager />;
   }
 
   const handlers = {
@@ -61,9 +66,9 @@ export function BeforeAfterSlider({
     <div ref={ref} className="ba-slider" style={{ ['--split' as string]: `${split}%` }} {...handlers}>
       {hasRealPair ? (
         <>
-          <img className="ba-slider__img" src={photos!.before!.file} alt="" loading="eager" />
+          <img className="ba-slider__img" src={photos!.before!.file} alt={`${name} — bərpadan əvvəl`} loading="eager" />
           <div className="ba-slider__after">
-            <img className="ba-slider__img" src={photos!.after.file} alt="" loading="eager" fetchPriority="high" />
+            <img className="ba-slider__img" src={photos!.after.file} alt={`${name} — bərpadan sonra`} loading="eager" fetchPriority="high" />
           </div>
         </>
       ) : (

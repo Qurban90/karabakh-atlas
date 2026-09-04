@@ -146,6 +146,7 @@ export function MapScreen() {
               id={preview.id}
               category={preview.category}
               photos={preview.photos}
+              name={preview.name}
               height={170}
               showCredit={false}
             />

@@ -162,21 +162,39 @@ export function ProgressRing({ percent, size = 84 }: { percent: number; size?: n
 }
 
 /* ── Animated number ── */
+
+/** Count-up is decoration; these two cases must still see the real figure. */
+function skipAnimation() {
+  if (typeof window === 'undefined') return true;
+  // Someone who asked the OS for less motion should not be made to watch a
+  // number tick, and a hidden tab gets no animation frames at all — without
+  // this the panel would sit at zero until it happens to be looked at.
+  return (
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true ||
+    document.visibilityState === 'hidden'
+  );
+}
+
 export function AnimatedNumber({ value, format }: { value: number; format?: (n: number) => string }) {
-  const [display, setDisplay] = useState(0);
+  const [display, setDisplay] = useState(() => (skipAnimation() ? value : 0));
   const raf = useRef(0);
+
   useEffect(() => {
+    if (skipAnimation()) {
+      setDisplay(value);
+      return;
+    }
     const start = performance.now();
-    const from = 0;
     const dur = 900;
     const tick = (now: number) => {
       const t = Math.min(1, (now - start) / dur);
       const eased = 1 - Math.pow(1 - t, 3);
-      setDisplay(Math.round(from + (value - from) * eased));
+      setDisplay(Math.round(value * eased));
       if (t < 1) raf.current = requestAnimationFrame(tick);
     };
     raf.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf.current);
   }, [value]);
+
   return <>{format ? format(display) : display.toLocaleString('az-AZ')}</>;
 }

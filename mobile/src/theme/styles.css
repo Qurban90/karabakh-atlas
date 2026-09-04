@@ -1984,3 +1984,15 @@ textarea.field__input {
   color: #fff;
   box-shadow: 0 6px 18px -6px rgba(225, 29, 72, 0.5);
 }
+
+/* Respect the OS "reduce motion" setting across the app. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

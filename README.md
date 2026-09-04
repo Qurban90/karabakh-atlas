@@ -131,13 +131,50 @@ Two rules when adding one, both enforced by the data file's shape:
    which a photo of somewhere else would not be. Where a photo is *related* but
    not exact, `caption` states what it really shows and the UI displays it.
 
-## ✅ Build verification (zero errors)
+## ✅ Verification
 
 ```bash
-npm --prefix server run check     # syntax-checks every server file
-npm --prefix mobile run typecheck # strict TypeScript, no emit
-npm --prefix mobile run build     # tsc + vite production bundle
+npm --prefix server run check      # syntax-checks every server file
+npm --prefix mobile run typecheck  # strict TypeScript, no emit
+npm --prefix mobile run build      # tsc + vite production bundle
+npm --prefix mobile audit          # 0 vulnerabilities
 ```
+
+### Security suite
+
+`npm --prefix server run security:test` attacks a running deployment the way
+an attacker with an ordinary account would: forged and `alg=none` tokens, role
+escalation through extra JSON fields, SQL injection, type confusion, stored
+XSS, oversized bodies, brute force, response headers and error leakage. It
+registers its own throwaway account and deletes it afterwards, so it is safe
+to point at production:
+
+```bash
+BASE=https://qdx-app.onrender.com npm --prefix server run security:test
+```
+
+22/22 pass against the live deployment.
+
+### Backups
+
+```bash
+npm --prefix server run backup          # backups/qdx-<timestamp>.json.gz
+npm --prefix server run restore <file> --yes
+VERIFY_DATABASE_URL=postgres://…/scratch npm --prefix server run backup:verify
+```
+
+`backup:verify` restores into a throwaway database and compares row counts —
+a backup nobody has restored is an assumption, not a backup. The pair has been
+exercised for real: backed up, every table truncated, restored, all rows back.
+`.github/workflows/backup.yml` keeps a daily `pg_dump` off-box as a private
+artifact (set the `DATABASE_URL` repository secret to enable it).
+
+### Least-privilege database role
+
+`server/db/roles.sql` splits the roles: `qdx_migrate` owns the schema,
+`qdx_app` may only read and write rows. Applied to a real cluster, the app
+works normally as `qdx_app` while `DROP TABLE`, `CREATE TABLE` and
+`ALTER TABLE` are all refused.
 
 ## 🐳 Production (Docker)
 

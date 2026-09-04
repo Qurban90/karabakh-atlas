@@ -74,11 +74,14 @@ locationsRouter.post(
   validate(upsertSchema),
   asyncH(async (req, res) => {
     const location = {
-      id: store.id('loc'),
       ...req.body,
+      // id last on purpose: spreading the body first means a future schema
+      // change that admits an `id` field still cannot let the caller pick one.
+      id: store.id('loc'),
       audioGuide: req.body.audioGuide ?? { durationSec: 20, lines: [req.body.shortDescription] }
     };
     store.locations.set(location.id, location);
+    store.persist();
     res.status(201).json({ item: serializeLocation(location, { full: true }) });
   })
 );
@@ -92,6 +95,7 @@ locationsRouter.put(
     const location = store.locations.get(req.params.id);
     if (!location) throw ApiError.notFound('Məkan tapılmadı');
     Object.assign(location, req.body);
+    store.persist();
     res.json({ item: serializeLocation(location, { full: true }) });
   })
 );
@@ -102,6 +106,7 @@ locationsRouter.delete(
   requireRole('admin'),
   asyncH(async (req, res) => {
     if (!store.locations.delete(req.params.id)) throw ApiError.notFound('Məkan tapılmadı');
+    store.persist();
     res.status(204).end();
   })
 );

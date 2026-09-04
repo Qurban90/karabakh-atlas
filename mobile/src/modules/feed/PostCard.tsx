@@ -102,6 +102,7 @@ export function PostCard({
             id={post.location.id}
             category={post.location.category}
             photos={post.location.photos ?? null}
+            name={post.location.name}
             height={150}
             showCredit={false}
           />
@@ -112,10 +113,20 @@ export function PostCard({
       )}
 
       <div className="post-card__actions">
-        <button className={`icon-btn like-btn${post.likedByMe ? ' is-liked' : ''}`} onClick={toggleLike}>
+        <button
+          className={`icon-btn like-btn${post.likedByMe ? ' is-liked' : ''}`}
+          onClick={toggleLike}
+          aria-pressed={post.likedByMe}
+          aria-label={`${post.likedByMe ? 'Bəyənmədən çıxar' : 'Bəyən'} — ${post.likeCount} bəyənmə`}
+        >
           <Heart size={16} /> {post.likeCount}
         </button>
-        <button className="icon-btn" onClick={() => setCommentsOpen((o) => !o)}>
+        <button
+          className="icon-btn"
+          onClick={() => setCommentsOpen((o) => !o)}
+          aria-expanded={commentsOpen}
+          aria-label={`Şərhlər — ${post.comments.length} ədəd`}
+        >
           <MessageCircle size={16} /> {post.comments.length}
         </button>
       </div>

@@ -39,6 +39,24 @@ reviewsRouter.post(
   asyncH(async (req, res) => {
     const location = store.locations.get(req.params.locationId);
     if (!location) throw ApiError.notFound('Məkan tapılmadı');
+
+    // One review per person per place. Without this a single account can post
+    // the same rating repeatedly and move a location's average on its own.
+    // Rewriting the existing review is friendlier than refusing the request —
+    // changing your mind about a place is normal.
+    const existing = store
+      .reviewsForLocation(location.id)
+      .find((r) => r.userId === req.user.id);
+
+    if (existing) {
+      existing.rating = req.body.rating;
+      existing.text = req.body.text;
+      existing.visitYear = req.body.visitYear;
+      existing.createdAt = new Date().toISOString();
+      store.persist();
+      return res.json({ item: serializeReview(existing), rating: store.ratingFor(location.id), updated: true });
+    }
+
     const review = {
       id: store.id('r'),
       locationId: location.id,

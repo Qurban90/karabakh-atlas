@@ -106,7 +106,30 @@ export const openapiSpec = {
             type: 'object',
             properties: { average: { type: 'number', example: 4.8 }, count: { type: 'integer' } }
           },
-          checkinCount: { type: 'integer' }
+          checkinCount: { type: 'integer' },
+          photos: { $ref: '#/components/schemas/LocationPhotos' }
+        }
+      },
+      LocationPhoto: {
+        type: 'object',
+        properties: {
+          file: { type: 'string', example: '/photos/natavan-evi.jpg' },
+          title: { type: 'string', description: 'Original file name on Wikimedia Commons' },
+          author: { type: 'string', example: 'Toghrul R' },
+          license: { type: 'string', example: 'CC BY-SA 4.0' },
+          licenseUrl: { type: 'string' },
+          source: { type: 'string', description: 'Commons page — the licence requires attribution' }
+        }
+      },
+      LocationPhotos: {
+        type: 'object',
+        nullable: true,
+        description:
+          'Openly-licensed photographs. Null where no genuine photo of the site exists, in which case the client draws its own illustration rather than showing a stand-in.',
+        properties: {
+          after: { $ref: '#/components/schemas/LocationPhoto' },
+          before: { $ref: '#/components/schemas/LocationPhoto' },
+          caption: { type: 'string', nullable: true, description: 'Set where the photo is related to, but not exactly, this site' }
         }
       },
       LocationFull: {
@@ -281,7 +304,8 @@ export const openapiSpec = {
         },
         responses: {
           200: { description: 'OK', content: { 'application/json': { schema: { $ref: '#/components/schemas/AuthResponse' } } } },
-          401: err('Wrong credentials')
+          401: err('Wrong credentials'),
+          429: err('Too many failed attempts for this account — see the Retry-After header')
         }
       }
     },
@@ -506,6 +530,36 @@ export const openapiSpec = {
           }
         },
         responses: { 201: { description: 'Created' }, 400: err('Too far for GPS check-in'), 409: err('Already checked in') }
+      }
+    },
+    '/users/me': {
+      delete: {
+        tags: ['Passport'],
+        summary: 'Delete your account permanently (hard delete)',
+        description:
+          'Erases the account and everything traceable to it: reviews, posts, check-ins, and the likes and comments it left on posts belonging to other users. Not reversible, and not a soft flag. The password is required again so that a stolen token alone cannot do this. Refuses to remove the last remaining admin.',
+        security: bearer,
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['password', 'confirm'],
+                properties: {
+                  password: { type: 'string', description: 'The account password, re-entered' },
+                  confirm: { type: 'string', enum: ['SİL'], description: 'Literal confirmation string' }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          204: { description: 'Account and all associated data erased' },
+          400: err('Confirmation string missing'),
+          401: err('Wrong password'),
+          403: err('Refused — this is the last admin account')
+        }
       }
     },
     '/users/me/passport': {

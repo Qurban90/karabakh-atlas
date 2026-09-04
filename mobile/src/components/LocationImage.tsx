@@ -16,6 +16,7 @@ export const LocationImage = memo(function LocationImage({
   id,
   category,
   photos,
+  name,
   height = 240,
   showCredit = true,
   eager = false
@@ -23,6 +24,8 @@ export const LocationImage = memo(function LocationImage({
   id: string;
   category: Category;
   photos: LocationPhotos | null;
+  /** Location name — becomes the image's alt text for screen readers. */
+  name?: string;
   height?: number;
   showCredit?: boolean;
   /** Set for above-the-fold images — lazy loading would delay the hero. */
@@ -36,7 +39,7 @@ export const LocationImage = memo(function LocationImage({
     <figure className="photo" style={{ maxHeight: height }}>
       <img
         src={photo.file}
-        alt={photos.caption ?? ''}
+        alt={photos.caption ?? (name ? `${name} — foto` : '')}
         loading={eager ? 'eager' : 'lazy'}
         decoding="async"
       />
