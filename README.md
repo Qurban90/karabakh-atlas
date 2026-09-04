@@ -73,15 +73,24 @@ reports which backend is active: `{"db":"postgres"}` or `{"db":"json"}`.
 | Role | E-mail | Password |
 | --- | --- | --- |
 | User | `aysel@demo.az` | `Demo123!` |
-| Admin | `admin@qdx.az` | `Admin123!` — **development only** |
-| Moderator | `leyla@demo.az` | `Demo123!` — **development only** |
+| User | `tural@demo.az` · `nigar@demo.az` · `resad@demo.az` | `Demo123!` |
+| Admin | `admin@qdx.az` | set by you — see below |
+| Moderator | `leyla@demo.az` | set by you — see below |
 
-Staff accounts can delete anyone's content, so the seed password (which is
-public — it ships in this repo) is refused in production. There, set
-`ADMIN_PASSWORD` / `MODERATOR_PASSWORD` in the environment; if you don't, the
-server generates a random one at first boot and prints it once to its log.
-The login screen's one-tap **Admin** shortcut is likewise stripped from
-production builds — only the regular demo user shortcut ships publicly.
+Staff accounts can delete anyone's content, so **they have no password in this
+repo at all** — a committed one would be a public backdoor. Set them in the
+environment:
+
+```bash
+ADMIN_PASSWORD=…      # admin@qdx.az
+MODERATOR_PASSWORD=…  # leyla@demo.az
+```
+
+With no env var set, the server generates a random password at seed time and
+prints it once to its log (look for `one-off password for admin@qdx.az`) — so
+staff access always requires either the environment or the server log, in
+every environment including local development. The login screen offers a
+one-tap shortcut for the regular demo user only.
 
 ## 📱 Android APK
 

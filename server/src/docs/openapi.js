@@ -20,7 +20,7 @@ export const openapiSpec = {
     title: 'Qarabağ Dirçəliş Xəritəsi API',
     version: '1.0.0',
     description:
-      'REST API for the Karabakh Revival Map — interactive locations of Şuşa & Xankəndi (2023–2026), reviews & ratings, community feed, revival analytics and the “Qarabağ Pasportu” check-in tracker.\n\n**Demo account:** `aysel@demo.az / Demo123!` (regular user). Login, copy the token, press **Authorize**.\n\nStaff accounts (`admin@qdx.az`, `leyla@demo.az`) use the seed password only in development. In production their password comes from `ADMIN_PASSWORD` / `MODERATOR_PASSWORD`, or is generated at first boot and printed once to the server log.'
+      'REST API for the Karabakh Revival Map — interactive locations of Şuşa & Xankəndi (2023–2026), reviews & ratings, community feed, revival analytics and the “Qarabağ Pasportu” check-in tracker.\n\n**Demo account:** `aysel@demo.az / Demo123!` (regular user). Login, copy the token, press **Authorize**.\n\nStaff accounts (`admin@qdx.az`, `leyla@demo.az`) have no password in the repository. Theirs comes from `ADMIN_PASSWORD` / `MODERATOR_PASSWORD`, or is generated at seed time and printed once to the server log — in every environment.'
   },
   servers: [{ url: '/api' }],
   tags: [

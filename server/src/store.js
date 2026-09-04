@@ -46,6 +46,7 @@ class Store {
       try {
         await this._initPostgres();
         this.backend = 'postgres';
+        this._refreshStaffPasswords();
         console.log('[qdx] persistence: Postgres');
         return;
       } catch (err) {
@@ -54,7 +55,24 @@ class Store {
     }
     this._initJson();
     this.backend = 'json';
+    this._refreshStaffPasswords();
     console.log('[qdx] persistence: JSON file (set DATABASE_URL for Postgres)');
+  }
+
+  /**
+   * Re-derives staff passwords on every boot, after data is loaded.
+   *
+   * Without this, a store seeded by an older build keeps the password hash it
+   * was seeded with — so a previously published seed password would survive in
+   * Postgres (or the JSON file) forever, which is exactly the backdoor this is
+   * meant to close. Re-deriving costs nothing and needs no destructive reseed.
+   */
+  _refreshStaffPasswords() {
+    for (const user of this.users.values()) {
+      if (user.role === 'user') continue;
+      const seed = usersSeed.find((u) => u.id === user.id) || user;
+      user.passwordHash = hashPassword(this._passwordFor(seed));
+    }
   }
 
   /* ---------- Postgres backend ---------- */
@@ -102,22 +120,20 @@ class Store {
   }
 
   /**
-   * Staff accounts (admin/moderator) can delete anyone's content, so the
-   * seed password — which is public, it ships in this repo — must never be
-   * live on a public deployment. In production the password comes from
-   * ADMIN_PASSWORD / MODERATOR_PASSWORD, or is randomly generated and
-   * printed once to the server log for the operator to pick up.
+   * Staff accounts (admin/moderator) can delete anyone's content, so they never
+   * get a password from the seed files — those are public, this repo ships
+   * them. The password comes from ADMIN_PASSWORD / MODERATOR_PASSWORD, and
+   * with no env var set a random one is generated and printed once to the
+   * server log. This holds in every environment, development included: a
+   * dev-only shortcut is exactly the kind of thing that reaches production.
    */
   _passwordFor(user) {
     if (user.role === 'user') return user.password;
+    const envName = `${user.role.toUpperCase()}_PASSWORD`;
     const fromEnv = config.staffPasswords[user.role];
     if (fromEnv) return fromEnv;
-    if (!config.isProd) return user.password; // frictionless local demos
     const generated = crypto.randomBytes(12).toString('base64url');
-    const envName = `${user.role.toUpperCase()}_PASSWORD`;
-    console.warn(
-      `[qdx] ${envName} is not set — generated a one-off password for ${user.email}: ${generated}`
-    );
+    console.warn(`[qdx] ${envName} is not set — one-off password for ${user.email}: ${generated}`);
     console.warn(`      Set ${envName} in the environment to choose your own.`);
     return generated;
   }

@@ -1,14 +1,20 @@
 /**
  * Seed users, reviews, posts and check-ins. All people are fictional.
- * Passwords here are plaintext ONLY as seed input — hashed at boot.
+ *
+ * Regular-user passwords are plaintext seed input, hashed at boot — they are
+ * demo accounts by design. Staff accounts (admin/moderator) deliberately have
+ * NO password here: they can delete anyone's content, so a password committed
+ * to this repo would be a public backdoor. Their password always comes from
+ * ADMIN_PASSWORD / MODERATOR_PASSWORD, or is randomly generated at seed time
+ * (see store._passwordFor).
  */
 export const usersSeed = [
-  { id: 'u-admin', name: 'QDX Admin', email: 'admin@qdx.az', password: 'Admin123!', role: 'admin', avatarHue: 265, joinedAt: '2023-11-05T09:00:00Z' },
+  { id: 'u-admin', name: 'QDX Admin', email: 'admin@qdx.az', role: 'admin', avatarHue: 265, joinedAt: '2023-11-05T09:00:00Z' },
   { id: 'u-aysel', name: 'Aysel Məmmədova', email: 'aysel@demo.az', password: 'Demo123!', role: 'user', avatarHue: 32, joinedAt: '2024-02-14T10:30:00Z' },
   { id: 'u-tural', name: 'Tural Həsənov', email: 'tural@demo.az', password: 'Demo123!', role: 'user', avatarHue: 152, joinedAt: '2024-03-02T18:12:00Z' },
   { id: 'u-nigar', name: 'Nigar Əliyeva', email: 'nigar@demo.az', password: 'Demo123!', role: 'user', avatarHue: 200, joinedAt: '2024-05-21T12:00:00Z' },
   { id: 'u-resad', name: 'Rəşad Quliyev', email: 'resad@demo.az', password: 'Demo123!', role: 'user', avatarHue: 8, joinedAt: '2024-09-09T08:45:00Z' },
-  { id: 'u-leyla', name: 'Leyla Səfərova', email: 'leyla@demo.az', password: 'Demo123!', role: 'moderator', avatarHue: 290, joinedAt: '2023-12-01T14:20:00Z' }
+  { id: 'u-leyla', name: 'Leyla Səfərova', email: 'leyla@demo.az', role: 'moderator', avatarHue: 290, joinedAt: '2023-12-01T14:20:00Z' }
 ];
 
 export const reviewsSeed = [
