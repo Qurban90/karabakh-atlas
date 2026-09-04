@@ -19,10 +19,41 @@ import { timelineRouter } from './modules/timeline/timeline.routes.js';
 import { analyticsRouter } from './modules/analytics/analytics.routes.js';
 import { usersRouter, checkinsRouter } from './modules/users/users.routes.js';
 
+/** Resolves the CORS policy from configuration; see the note at its use site. */
+function corsOrigin() {
+  const configured = config.corsOrigin
+    .split(',')
+    .map((o) => o.trim())
+    .filter((o) => o && o !== '*');
+
+  if (configured.length) return configured;          // explicit allow-list
+  if (config.isProd) return false;                   // same-origin only
+  return true;                                       // development: reflect
+}
+
 export function createApp() {
   const app = express();
   app.disable('x-powered-by');
   app.set('trust proxy', 1); // correct client IPs for rate limiting behind nginx/render
+
+  /**
+   * Force HTTPS in production. Render terminates TLS at its edge and forwards
+   * over http, so the scheme has to come from x-forwarded-proto rather than
+   * req.protocol. HSTS (set by helmet below) only helps browsers that have
+   * already seen a secure response — this covers the very first request.
+   *
+   * The health check is exempt: platform probes may call it over plain http,
+   * and answering them with a 301 would look like a failing service.
+   */
+  if (config.isProd) {
+    app.use((req, res, next) => {
+      if (req.path === '/api/health') return next();
+      if (req.get('x-forwarded-proto') === 'http') {
+        return res.redirect(308, `https://${req.get('host')}${req.originalUrl}`);
+      }
+      next();
+    });
+  }
 
   app.use(
     helmet({
@@ -40,7 +71,41 @@ export function createApp() {
       }
     })
   );
-  app.use(cors({ origin: config.corsOrigin === '*' ? true : config.corsOrigin.split(',') }));
+
+  /**
+   * Permissions-Policy — helmet does not set this. The app asks for
+   * geolocation (GPS check-in) and nothing else, so everything else is denied
+   * outright: a compromised dependency cannot quietly reach for the camera or
+   * microphone, and geolocation is confined to our own origin.
+   */
+  app.use((_req, res, next) => {
+    res.setHeader(
+      'Permissions-Policy',
+      [
+        'geolocation=(self)',
+        'camera=()',
+        'microphone=()',
+        'payment=()',
+        'usb=()',
+        'magnetometer=()',
+        'accelerometer=()',
+        'gyroscope=()',
+        'interest-cohort=()'
+      ].join(', ')
+    );
+    next();
+  });
+  /**
+   * CORS. The client is served from this same origin, so in production the
+   * safe default is to grant no cross-origin access at all — CORS_ORIGIN only
+   * needs a value if the client is ever hosted separately (e.g. Vercel).
+   *
+   * Worth being clear about what this does and does not do: CORS is enforced
+   * by browsers, and only protects *other people's* browsers from being used
+   * against this API. It stops nothing from curl, Postman or a script — those
+   * are held off by authentication and rate limiting, not by this header.
+   */
+  app.use(cors({ origin: corsOrigin(), credentials: false, maxAge: 600 }));
   // This API is text-only — the largest legitimate body is an admin location
   // create, a few KB. 1mb was ~100x more than anything needs, and every byte
   // of that is parsed into memory before a single validator runs.

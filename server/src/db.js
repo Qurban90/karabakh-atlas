@@ -134,8 +134,24 @@ async function setMeta(client, key, value) {
   );
 }
 
-/** Multi-row INSERT helper: rows = array of param-arrays. */
+/** Identifiers this helper is ever allowed to build SQL from. */
+const TABLES = new Set(['users', 'locations', 'reviews', 'posts', 'checkins']);
+const IDENTIFIER = /^[a-z_][a-z0-9_]*$/;
+
+/**
+ * Multi-row INSERT helper: rows = array of param-arrays.
+ *
+ * Values always travel as $n parameters — they are never concatenated into
+ * the statement. Table and column names cannot be parameterised by the
+ * protocol, so they are checked against a fixed list instead: today every
+ * caller passes a literal, and this makes sure a future one cannot pass
+ * something a user influenced.
+ */
 async function bulkInsert(client, table, columns, rows) {
+  if (!TABLES.has(table)) throw new Error(`refusing to build SQL for unknown table: ${table}`);
+  for (const col of columns) {
+    if (!IDENTIFIER.test(col)) throw new Error(`refusing to build SQL for unsafe column: ${col}`);
+  }
   if (!rows.length) return;
   const params = [];
   const tuples = rows.map((row) => {
