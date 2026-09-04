@@ -3,7 +3,11 @@ dist/
 build/
 *.log
 .DS_Store
+# Never commit environment files — they are where secrets end up.
+# Committed templates live in *.env.example instead.
 .env
-.env.local
+.env.*
+!.env.example
+!*.env.example
 server/data/runtime-db.json
 .tools/

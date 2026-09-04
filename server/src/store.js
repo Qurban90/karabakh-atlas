@@ -3,6 +3,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { config } from './config.js';
 import { hashPassword } from './lib/passwords.js';
+import { redact } from './lib/redact.js';
 import { initSchema, getMeta, syncAll, loadAll } from './db.js';
 import { locationsSeed } from './data/locations.data.js';
 import { timelineSeed } from './data/timeline.data.js';
@@ -50,7 +51,7 @@ class Store {
         console.log('[qdx] persistence: Postgres');
         return;
       } catch (err) {
-        console.warn('[qdx] Postgres unreachable, falling back to JSON file:', err.message);
+        console.warn('[qdx] Postgres unreachable, falling back to JSON file:', redact(err.message));
       }
     }
     this._initJson();
@@ -162,7 +163,7 @@ class Store {
     this._saveTimer = setTimeout(() => {
       if (this.backend === 'postgres') {
         syncAll(this, SEED_VERSION).catch((err) =>
-          console.warn('[qdx] Postgres sync failed:', err.message)
+          console.warn('[qdx] Postgres sync failed:', redact(err.message))
         );
       } else {
         this._persistJson();

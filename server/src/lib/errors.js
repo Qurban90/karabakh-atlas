@@ -1,5 +1,7 @@
 /** Centralized error model + Express error middleware. */
 
+import { redactError } from './redact.js';
+
 export class ApiError extends Error {
   constructor(status, message, code = 'ERROR', details) {
     super(message);
@@ -35,14 +37,23 @@ export function notFoundHandler(req, _res, next) {
 // eslint-disable-next-line no-unused-vars
 export function errorHandler(err, req, res, _next) {
   const status = err.status || 500;
+
   if (status >= 500) {
-    console.error(`[qdx] ${req.method} ${req.originalUrl} →`, err);
+    // Never log the raw error: a pg failure carries the whole connection string.
+    console.error(`[qdx] ${req.method} ${req.originalUrl} →`, redactError(err));
   }
+
+  // Any 5xx gets a fixed message. Deciding this on `!err.status` used to let an
+  // explicitly-thrown 500 ship its internal text — driver errors, paths, SQL —
+  // straight to the client.
+  const isServerFault = status >= 500;
+
   res.status(status).json({
     error: {
-      code: err.code || (status >= 500 ? 'INTERNAL' : 'ERROR'),
-      message: status >= 500 && !err.status ? 'Daxili server xətası' : err.message,
-      ...(err.details ? { details: err.details } : {})
+      code: err.code || (isServerFault ? 'INTERNAL' : 'ERROR'),
+      message: isServerFault ? 'Daxili server xətası' : err.message,
+      // details come from our own zod validation, never from a driver
+      ...(!isServerFault && err.details ? { details: err.details } : {})
     }
   });
 }

@@ -61,6 +61,22 @@ export const config = {
   persistEnabled: process.env.PERSIST !== 'off'
 };
 
-if (config.isProd && config.jwtSecret === 'qdx-dev-secret-change-me') {
-  console.warn('[qdx] WARNING: set a strong JWT_SECRET in production (.env.production).');
+/**
+ * A known JWT secret means anyone can mint a valid admin token, so production
+ * refuses to start rather than serving traffic that only looks authenticated.
+ * Development keeps the default so `npm run dev` needs no setup.
+ */
+const WEAK_SECRETS = new Set([
+  'qdx-dev-secret-change-me',
+  'REPLACE_WITH_LONG_RANDOM_SECRET',
+  'qdx-compose-demo-secret-set-your-own',
+  'secret',
+  'changeme'
+]);
+
+if (config.isProd && (WEAK_SECRETS.has(config.jwtSecret) || config.jwtSecret.length < 32)) {
+  console.error('[qdx] FATAL: JWT_SECRET is missing, a known default, or shorter than 32 chars.');
+  console.error('       Anyone who knows it can forge an admin token, so refusing to start.');
+  console.error('       Generate one with: openssl rand -base64 48');
+  process.exit(1);
 }
