@@ -9,11 +9,16 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>
 );
 
-// installable PWA: register the service worker for production builds only
+// Installable PWA: register the service worker for production builds only.
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
+  const register = () =>
     navigator.serviceWorker.register('/sw.js').catch(() => {
-      /* offline shell is progressive enhancement — app works without it */
+      /* offline shell is progressive enhancement — the app works without it */
     });
-  });
+
+  // Waiting for `load` unconditionally is a trap: a cached module can execute
+  // after that event has already fired, and the listener would then never run,
+  // leaving the app permanently without its offline shell.
+  if (document.readyState === 'complete') register();
+  else window.addEventListener('load', register, { once: true });
 }
