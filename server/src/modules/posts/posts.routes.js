@@ -4,6 +4,7 @@ import { store } from '../../store.js';
 import { validate } from '../../lib/validate.js';
 import { ApiError, asyncH } from '../../lib/errors.js';
 import { authRequired, authOptional, publicUser } from '../../lib/auth.js';
+import { locationPhotos } from '../../data/photos.data.js';
 
 export const postsRouter = Router();
 
@@ -29,7 +30,13 @@ function serializePost(post, currentUser) {
     createdAt: post.createdAt,
     user: publicUser(store.users.get(post.userId)),
     location: location
-      ? { id: location.id, name: location.name, city: location.city, category: location.category }
+      ? {
+          id: location.id,
+          name: location.name,
+          city: location.city,
+          category: location.category,
+          photos: locationPhotos[location.id] ?? null
+        }
       : null,
     likeCount: post.likes.length,
     likedByMe: currentUser ? post.likes.includes(currentUser.id) : false,

@@ -1875,3 +1875,94 @@ textarea.field__input {
     transform: translateY(8px);
   }
 }
+
+/* ── real photographs (Wikimedia Commons, CC-licensed) ── */
+.photo {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  background: #e9edf3;
+}
+
+.photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  aspect-ratio: 16 / 10;
+}
+
+/* Attribution is a licence condition, not decoration — keep it legible. */
+.photo__credit {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: calc(100% - 16px);
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #0f172ab8;
+  backdrop-filter: blur(4px);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.photo__credit a {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150px;
+}
+
+.photo__license {
+  opacity: 0.75;
+  flex: none;
+}
+
+.photo__caption {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  max-width: calc(100% - 100px);
+  padding: 4px 9px;
+  border-radius: 8px;
+  background: #0f172ab8;
+  backdrop-filter: blur(4px);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.ba-slider__img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.ba-slider__credit {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #0f172ab0;
+  color: #fff;
+  font-size: 9.8px;
+  font-weight: 600;
+  max-width: calc(100% - 20px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

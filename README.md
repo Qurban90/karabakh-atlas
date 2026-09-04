@@ -20,7 +20,8 @@ to the map.
 | 🗺 Interactive map (custom pins, clustering) | Map tab | Leaflet + hand-rolled grid clustering, category-coloured pins with live status dots |
 | 🕰 Time-Travel slider 2023–2026 | Map tab (bottom card) | Markers appear/change status per year; ▶ auto-plays the years |
 | 🔍 Filters & search | Map tab | City chips, 6 category chips, debounced free-text search |
-| 🏛 "Dirçəliş qabağı və sonrası" | Location page hero | Draggable split slider over generative SVG scenes (before: damaged · after: restored) |
+| 📷 Real photographs | everywhere | 20 openly-licensed photos (Wikimedia Commons — CC BY / CC BY-SA / CC0, many from the Azerbaijani presidential press service), each shown with its author and licence. See **PHOTO-CREDITS.md** |
+| 🏛 "Dirçəliş qabağı və sonrası" | Location page hero | Real before/after photo pairs where both exist (Natəvan's house, Üzeyir Hacıbəyli museum, Şuşa realnı məktəbi); otherwise the photo alone, or generative SVG scenes where no photo exists |
 | 🎧 Səsli bələdçi (audio guide) | Location page | Simulated WebAudio stream + karaoke transcript, per-location scripts |
 | ⭐ Reviews & 5-star ratings | Location page | Zod validation, distribution bars, owner/moderator delete |
 | 📰 Social feed | Lent tab | Posts with location tags, optimistic likes, comment threads, pagination |
@@ -112,6 +113,23 @@ bubblewrap update && bubblewrap build   # from store/twa-manifest.json
 
 The signing key lives outside this repo. **Keep it** — Play Store updates must
 be signed with the same key, and `assetlinks.json` is tied to its fingerprint.
+
+## 📷 Photographs
+
+Real photos live in `mobile/public/photos/` and their metadata — author,
+licence, source page — in `server/src/data/photos.data.js`, served to the
+client on every location payload. **PHOTO-CREDITS.md** lists all of them.
+
+Two rules when adding one, both enforced by the data file's shape:
+
+1. **Attribution is mandatory.** CC BY / CC BY-SA require it, so the UI paints
+   a credit line on every photo; an entry without `author`/`license`/`source`
+   is a licence violation waiting to happen.
+2. **Never a stand-in.** A photo must actually depict that location. Where no
+   genuine open-licensed photo exists (currently the Yaşıl Enerji Qovşağı) the
+   app falls back to its generated illustration — honest about being a drawing,
+   which a photo of somewhere else would not be. Where a photo is *related* but
+   not exact, `caption` states what it really shows and the UI displays it.
 
 ## ✅ Build verification (zero errors)
 

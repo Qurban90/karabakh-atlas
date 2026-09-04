@@ -10,7 +10,7 @@ import { categoryColors, categoryLabels, cityLabels, statusMeta } from '../../ut
 import { LeafletMap } from './LeafletMap';
 import { TimelineSlider } from './TimelineSlider';
 import { Sheet } from '../../components/Sheet';
-import { LocationArt } from '../../components/LocationArt';
+import { LocationImage } from '../../components/LocationImage';
 import { CatChip, StatusChip, Stars } from '../../components/ui';
 
 const CITY_OPTIONS: { value: City | null; label: string }[] = [
@@ -142,13 +142,12 @@ export function MapScreen() {
       {preview && (
         <Sheet onClose={() => setSelected(null)}>
           <div className="preview__art">
-            <LocationArt
+            <LocationImage
               id={preview.id}
               category={preview.category}
-              variant={
-                preview.status && ['restored', 'active'].includes(preview.status.status) ? 'after' : 'before'
-              }
+              photos={preview.photos}
               height={170}
+              showCredit={false}
             />
             <div className="preview__badges">
               <CatChip category={preview.category} />

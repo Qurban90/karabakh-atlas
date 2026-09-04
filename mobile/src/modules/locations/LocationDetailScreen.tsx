@@ -73,7 +73,7 @@ export function LocationDetailScreen() {
         <button className="detail-hero__back" onClick={() => navigate(-1)} aria-label="Geri">
           <ChevronLeft size={20} />
         </button>
-        <BeforeAfterSlider id={item.id} category={item.category} />
+        <BeforeAfterSlider id={item.id} category={item.category} photos={item.photos} />
       </div>
 
       <div className="detail-body">

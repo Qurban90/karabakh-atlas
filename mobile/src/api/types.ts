@@ -28,6 +28,23 @@ export interface Rating {
   count: number;
 }
 
+export interface LocationPhoto {
+  file: string;
+  title: string;
+  author: string;
+  license: string;
+  licenseUrl: string;
+  source: string;
+}
+
+export interface LocationPhotos {
+  after: LocationPhoto;
+  /** Present only where a genuine pre-restoration photo exists. */
+  before?: LocationPhoto;
+  /** Set where the photo is related to, but not exactly, this site. */
+  caption: string | null;
+}
+
 export interface LocationItem {
   id: string;
   name: string;
@@ -42,6 +59,7 @@ export interface LocationItem {
   status: LocationStatus | null;
   rating: Rating;
   checkinCount: number;
+  photos: LocationPhotos | null;
 }
 
 export interface AudioGuide {
@@ -84,7 +102,13 @@ export interface Post {
   text: string;
   createdAt: string;
   user: PublicUser;
-  location: { id: string; name: string; city: City; category: Category } | null;
+  location: {
+    id: string;
+    name: string;
+    city: City;
+    category: Category;
+    photos: LocationPhotos | null;
+  } | null;
   likeCount: number;
   likedByMe: boolean;
   comments: PostComment[];

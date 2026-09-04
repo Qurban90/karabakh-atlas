@@ -1,4 +1,5 @@
 import { store } from '../../store.js';
+import { locationPhotos } from '../../data/photos.data.js';
 
 export const YEARS = [2023, 2024, 2025, 2026];
 export const CATEGORIES = ['heritage', 'infrastructure', 'energy_roads', 'culture_tourism', 'education', 'smart_village'];
@@ -31,7 +32,8 @@ export function serializeLocation(location, { year = 2026, full = false } = {}) 
     tags: location.tags,
     status: statusAt(location, year),
     rating,
-    checkinCount
+    checkinCount,
+    photos: locationPhotos[location.id] ?? null
   };
   if (!full) return base;
   return { ...base, history: location.history, timeline: location.timeline, audioGuide: location.audioGuide };

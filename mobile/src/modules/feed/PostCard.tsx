@@ -7,7 +7,7 @@ import type { Post } from '../../api/types';
 import { useAuth } from '../../store/auth';
 import { toast } from '../../store/toast';
 import { Avatar } from '../../components/ui';
-import { LocationArt } from '../../components/LocationArt';
+import { LocationImage } from '../../components/LocationImage';
 import { timeAgo } from '../../utils/format';
 
 export function PostCard({
@@ -98,7 +98,13 @@ export function PostCard({
           onClick={() => navigate(`/location/${post.location!.id}`)}
           style={{ cursor: 'pointer' }}
         >
-          <LocationArt id={post.location.id} category={post.location.category} variant="after" height={150} />
+          <LocationImage
+            id={post.location.id}
+            category={post.location.category}
+            photos={post.location.photos ?? null}
+            height={150}
+            showCredit={false}
+          />
           <span className="post-card__loc">
             <MapPin size={11} /> {post.location.name}
           </span>
