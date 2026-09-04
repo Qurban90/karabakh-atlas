@@ -12,7 +12,14 @@ const listQuerySchema = z.object({
   year: z.coerce.number().int().min(2023).max(2026).optional(),
   category: z.enum(CATEGORIES).optional(),
   city: z.enum(CITIES).optional(),
-  q: z.string().max(80).optional()
+  // Trimmed, and blank-after-trim becomes "no filter" — typing a space should
+  // not empty the map.
+  q: z
+    .string()
+    .max(80)
+    .transform((v) => v.trim())
+    .transform((v) => (v.length ? v : undefined))
+    .optional()
 });
 
 const detailQuerySchema = z.object({
