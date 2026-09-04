@@ -51,6 +51,14 @@ class Store {
         console.log('[qdx] persistence: Postgres');
         return;
       } catch (err) {
+        // Falling back is a convenience for local development. In production it
+        // would silently trade a real database for an ephemeral file — the app
+        // would look healthy while every write is one restart from being lost.
+        if (config.isProd) {
+          console.error('[qdx] FATAL: DATABASE_URL is set but Postgres is unavailable:', redact(err.message));
+          console.error('       Refusing to start on the JSON fallback in production.');
+          process.exit(1);
+        }
         console.warn('[qdx] Postgres unreachable, falling back to JSON file:', redact(err.message));
       }
     }

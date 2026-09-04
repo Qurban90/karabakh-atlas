@@ -5,6 +5,7 @@ import { validate } from '../../lib/validate.js';
 import { ApiError, asyncH } from '../../lib/errors.js';
 import { hashPassword, verifyPassword } from '../../lib/passwords.js';
 import { signToken, authRequired, publicUser } from '../../lib/auth.js';
+import { retryAfter, recordFailure, recordSuccess } from '../../lib/loginGuard.js';
 
 export const authRouter = Router();
 
@@ -50,10 +51,29 @@ authRouter.post(
   validate(loginSchema),
   asyncH(async (req, res) => {
     const { email, password } = req.body;
+
+    // Per-account backoff runs before any password work: it costs an attacker
+    // the wait even when they rotate IPs, and it keeps scrypt (deliberately
+    // slow) from being turned into a CPU exhaustion lever.
+    const wait = retryAfter(email);
+    if (wait > 0) {
+      res.set('Retry-After', String(wait));
+      throw new ApiError(
+        429,
+        `Çox sayda uğursuz cəhd. ${wait} saniyə sonra yenidən yoxlayın.`,
+        'TOO_MANY_ATTEMPTS'
+      );
+    }
+
     const user = store.findUserByEmail(email);
     if (!user || !verifyPassword(password, user.passwordHash)) {
+      recordFailure(email);
+      // Same message either way — telling them the address exists would turn
+      // this endpoint into an account enumeration oracle.
       throw ApiError.unauthorized('E-poçt və ya şifrə yanlışdır');
     }
+
+    recordSuccess(email);
     res.json({ token: signToken(user), user: publicUser(user) });
   })
 );

@@ -41,7 +41,10 @@ export function createApp() {
     })
   );
   app.use(cors({ origin: config.corsOrigin === '*' ? true : config.corsOrigin.split(',') }));
-  app.use(express.json({ limit: '1mb' }));
+  // This API is text-only — the largest legitimate body is an admin location
+  // create, a few KB. 1mb was ~100x more than anything needs, and every byte
+  // of that is parsed into memory before a single validator runs.
+  app.use(express.json({ limit: '64kb' }));
   app.use(sanitizeBody);
 
   /* ---------- rate limiting ---------- */
@@ -68,7 +71,12 @@ export function createApp() {
     message: { error: { code: 'RATE_LIMITED', message: 'Çox sayda yazma sorğusu — bir az sonra yenidən cəhd edin' } }
   });
   app.use('/api', baseLimiter);
-  app.use('/api/auth', authLimiter);
+  // Only the credential endpoints get the strict budget. /auth/me used to share
+  // it, and the client calls that on every load to restore a session — a user
+  // reloading the app could burn through the login allowance without ever
+  // typing a password.
+  app.use('/api/auth/login', authLimiter);
+  app.use('/api/auth/register', authLimiter);
   app.use('/api', writeLimiter);
 
   /* ---------- docs ---------- */

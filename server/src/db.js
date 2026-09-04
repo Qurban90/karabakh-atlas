@@ -87,8 +87,39 @@ CREATE INDEX IF NOT EXISTS idx_posts_created   ON posts(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_checkins_user   ON checkins(user_id);
 `;
 
+/** True when the tables this app needs already exist. */
+export async function schemaReady() {
+  const res = await getPool().query(
+    `SELECT count(*)::int AS n FROM information_schema.tables
+      WHERE table_schema = current_schema()
+        AND table_name IN ('users','locations','reviews','posts','checkins','qdx_meta')`
+  );
+  return res.rows[0]?.n === 6;
+}
+
+/**
+ * Creates the schema when the connected role is allowed to.
+ *
+ * A least-privilege runtime role (see db/roles.sql) has no CREATE on the
+ * schema, so this will be refused — which is fine as long as the migration
+ * role has already created the tables. It is only fatal when the schema is
+ * genuinely missing and we cannot create it.
+ */
 export async function initSchema() {
-  await getPool().query(SCHEMA_SQL);
+  try {
+    await getPool().query(SCHEMA_SQL);
+  } catch (err) {
+    const denied = err?.code === '42501'; // insufficient_privilege
+    if (!denied) throw err;
+    if (await schemaReady()) {
+      console.log('[qdx] no DDL rights (least-privilege role) — schema already present, continuing');
+      return;
+    }
+    throw new Error(
+      'no permission to create the schema and it does not exist yet — ' +
+        'run db/roles.sql and apply the schema as the migration role first'
+    );
+  }
 }
 
 export async function getMeta(key) {
