@@ -4,10 +4,18 @@ import { store } from '../../store.js';
 import { validate } from '../../lib/validate.js';
 import { ApiError, asyncH } from '../../lib/errors.js';
 import { authRequired } from '../../lib/auth.js';
+import { verifyPassword } from '../../lib/passwords.js';
 import { computeBadges } from '../../lib/badges.js';
 
 export const usersRouter = Router();
 export const checkinsRouter = Router();
+
+const deleteAccountSchema = z.object({
+  // Re-authentication, not ceremony: a stolen token alone should not be able
+  // to erase an account, and it stops a mis-click doing it either.
+  password: z.string().min(1, 'Şifrə tələb olunur'),
+  confirm: z.literal('SİL', { errorMap: () => ({ message: 'Təsdiq üçün SİL yazın' }) })
+});
 
 const checkinSchema = z.object({
   locationId: z.string().min(1, 'Məkan seçilməlidir'),
@@ -97,5 +105,24 @@ usersRouter.get(
       earnedBadges: badges.filter((b) => b.earned).length,
       stats: { reviews: myReviews, posts: myPosts, checkins: checkins.length }
     });
+  })
+);
+
+usersRouter.delete(
+  '/me',
+  authRequired,
+  validate(deleteAccountSchema),
+  asyncH(async (req, res) => {
+    if (!verifyPassword(req.body.password, req.user.passwordHash)) {
+      throw ApiError.unauthorized('Şifrə yanlışdır');
+    }
+    // Losing the only admin would leave nobody able to moderate.
+    if (req.user.role === 'admin' && store.countRole('admin') <= 1) {
+      throw ApiError.forbidden('Son admin hesabı silinə bilməz — əvvəlcə başqa admin təyin edin');
+    }
+
+    const removed = store.deleteUserCompletely(req.user.id);
+    console.log(`[qdx] account erased: ${req.user.id} ${JSON.stringify(removed)}`);
+    res.status(204).end();
   })
 );

@@ -11,3 +11,6 @@ build/
 !*.env.example
 server/data/runtime-db.json
 .tools/
+
+# Backups contain e-mail addresses and password hashes — never commit them.
+server/backups/

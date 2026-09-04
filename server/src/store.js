@@ -225,6 +225,47 @@ class Store {
     return { average: Math.round((sum / list.length) * 10) / 10, count: list.length };
   }
 
+  /**
+   * Erases a user and everything traceable to them — a real delete, not a
+   * flag. Nothing is left holding their identity: their own rows go, and so
+   * do their likes and comments sitting inside other people's posts, which a
+   * foreign-key cascade would not reach because those live in JSONB columns.
+   *
+   * Their reviews go with them, which does move a location's rating. That is
+   * the honest reading of erasure; the alternative — reassigning content to a
+   * "deleted user" — keeps the text but is no longer deletion.
+   */
+  deleteUserCompletely(userId) {
+    const removed = { reviews: 0, posts: 0, checkins: 0, likes: 0, comments: 0 };
+
+    for (const [id, r] of this.reviews) {
+      if (r.userId === userId) { this.reviews.delete(id); removed.reviews++; }
+    }
+    for (const [id, c] of this.checkins) {
+      if (c.userId === userId) { this.checkins.delete(id); removed.checkins++; }
+    }
+    for (const [id, p] of this.posts) {
+      if (p.userId === userId) { this.posts.delete(id); removed.posts++; continue; }
+      const likes = p.likes.filter((u) => u !== userId);
+      removed.likes += p.likes.length - likes.length;
+      p.likes = likes;
+      const comments = p.comments.filter((c) => c.userId !== userId);
+      removed.comments += p.comments.length - comments.length;
+      p.comments = comments;
+    }
+
+    this.users.delete(userId);
+    this.persist();
+    return removed;
+  }
+
+  /** How many accounts still hold a given role — used to refuse the last admin. */
+  countRole(role) {
+    let n = 0;
+    for (const u of this.users.values()) if (u.role === role) n++;
+    return n;
+  }
+
   checkinsForUser(userId) {
     return [...this.checkins.values()]
       .filter((c) => c.userId === userId)

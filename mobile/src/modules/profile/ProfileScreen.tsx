@@ -14,10 +14,11 @@ import {
   CloudDownload,
   Loader2,
   ShieldCheck,
-  Stamp
+  Stamp,
+  Trash2
 } from 'lucide-react';
-import { locationsApi, passportApi, precacheForOffline } from '../../api/endpoints';
-import { cacheStats } from '../../api/client';
+import { accountApi, locationsApi, passportApi, precacheForOffline } from '../../api/endpoints';
+import { apiErrorMessage, cacheStats } from '../../api/client';
 import type { Badge, Passport } from '../../api/types';
 import { useAuth } from '../../store/auth';
 import { toast } from '../../store/toast';
@@ -44,6 +45,9 @@ export function ProfileScreen() {
   const [failed, setFailed] = useState(false);
   const [showAllVisits, setShowAllVisits] = useState(false);
   const [caching, setCaching] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleting, setDeleting] = useState(false);
   const [cache, setCache] = useState(cacheStats());
 
   const load = useCallback(() => {
@@ -57,6 +61,21 @@ export function ProfileScreen() {
   }, [user]);
 
   useEffect(load, [load]);
+
+  async function deleteAccount() {
+    setDeleting(true);
+    try {
+      await accountApi.deleteMe(deletePassword);
+      toast.success('Hesabınız və bütün məlumatlarınız silindi');
+      logout();
+      navigate('/');
+    } catch (err) {
+      toast.error(apiErrorMessage(err));
+    } finally {
+      setDeleting(false);
+      setDeletePassword('');
+    }
+  }
 
   async function precache() {
     setCaching(true);
@@ -222,6 +241,57 @@ export function ProfileScreen() {
             </div>
           </>
         )}
+
+        {/* Account deletion is a Play Store requirement for any app with
+            accounts, and the right of erasure regardless of the store. */}
+        <div className="card danger-zone">
+          <div className="section-title" style={{ fontSize: 14, color: 'var(--c-rose)' }}>
+            <Trash2 size={16} /> Hesabı sil
+          </div>
+          {!deleteOpen ? (
+            <>
+              <p className="danger-zone__text">
+                Hesabınız, rəyləriniz, paylaşımlarınız və ziyarət qeydləriniz həmişəlik silinir.
+                Bu əməliyyat geri qaytarıla bilməz.
+              </p>
+              <button className="btn btn--danger btn--sm" onClick={() => setDeleteOpen(true)}>
+                Hesabı silmək istəyirəm
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="danger-zone__text">
+                Təsdiq üçün şifrənizi daxil edin. Bütün məlumatlarınız serverdən tamamilə silinəcək.
+              </p>
+              <input
+                className="field__input"
+                type="password"
+                placeholder="Şifrəniz"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                style={{ marginBottom: 10 }}
+              />
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  className="btn btn--danger btn--sm"
+                  style={{ flex: 1 }}
+                  onClick={deleteAccount}
+                  disabled={deleting || deletePassword.length < 1}
+                >
+                  {deleting ? <Loader2 size={15} className="spin" /> : <Trash2 size={15} />}
+                  Həmişəlik sil
+                </button>
+                <button
+                  className="btn btn--ghost btn--sm"
+                  style={{ flex: 1 }}
+                  onClick={() => { setDeleteOpen(false); setDeletePassword(''); }}
+                >
+                  İmtina
+                </button>
+              </div>
+            </>
+          )}
+        </div>
 
         {/* offline cache */}
         <div className="card offline-row">

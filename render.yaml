@@ -28,8 +28,12 @@ services:
         value: production
       - key: JWT_SECRET
         generateValue: true
+      # Left unset on purpose: with the client served from this same service,
+      # production grants no cross-origin access at all. Only set this (a
+      # comma-separated list of origins) if the client ever moves to its own
+      # domain.
       - key: CORS_ORIGIN
-        value: '*'
+        value: ''
       - key: DATABASE_URL
         fromDatabase:
           name: qdx-db

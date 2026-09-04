@@ -77,6 +77,12 @@ export const analyticsApi = {
   revivalIndex: () => api.get<RevivalIndex>('/analytics/revival-index').then((r) => r.data)
 };
 
+export const accountApi = {
+  /** Hard delete. Requires the password again: a stolen token must not suffice. */
+  deleteMe: (password: string) =>
+    api.delete('/users/me', { data: { password, confirm: 'SİL' } })
+};
+
 export const passportApi = {
   get: () => api.get<Passport>('/users/me/passport').then((r) => r.data),
   checkin: (body: { locationId: string; method: 'gps' | 'manual'; lat?: number; lng?: number }) =>

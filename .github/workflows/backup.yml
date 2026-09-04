@@ -1,0 +1,45 @@
+# Off-box database backup.
+#
+# Backups that live on the same host as the database are not backups — they
+# die with it. This runs on GitHub's infrastructure and keeps the dump as a
+# build artifact, so a lost or corrupted Render database is recoverable.
+#
+# Setup (once): repository → Settings → Secrets → Actions → New secret
+#   DATABASE_URL = the External Database URL from the Render dashboard
+name: Database backup
+
+on:
+  schedule:
+    - cron: '0 3 * * *' # 03:00 UTC daily
+  workflow_dispatch: {} # and on demand
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install postgres client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Dump database
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "DATABASE_URL secret is not set — add it in repository settings." >&2
+            exit 1
+          fi
+          mkdir -p dump
+          pg_dump --no-owner --no-privileges --format=custom \
+            --file="dump/qdx-$(date -u +%Y-%m-%d).dump" "$DATABASE_URL"
+          ls -lh dump
+
+      # The dump holds e-mail addresses and password hashes, so it is never
+      # committed to the repository — artifacts are private to the repo.
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: qdx-backup-${{ github.run_id }}
+          path: dump/
+          retention-days: 30
