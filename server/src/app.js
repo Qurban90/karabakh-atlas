@@ -63,7 +63,14 @@ export function createApp() {
           defaultSrc: ["'self'"],
           scriptSrc: ["'self'"],
           styleSrc: ["'self'", "'unsafe-inline'"],
-          imgSrc: ["'self'", 'data:', 'https://*.basemaps.cartocdn.com', 'https://basemaps.cartocdn.com'],
+          imgSrc: [
+            "'self'",
+            'data:',
+            'https://server.arcgisonline.com',
+            'https://*.arcgisonline.com',
+            'https://tile.opentopomap.org',
+            'https://*.tile.opentopomap.org'
+          ],
           connectSrc: ["'self'"],
           objectSrc: ["'none'"],
           frameAncestors: ["'self'"]

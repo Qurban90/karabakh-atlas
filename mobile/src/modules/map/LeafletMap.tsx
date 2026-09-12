@@ -62,13 +62,46 @@ export function LeafletMap({
       attributionControl: true
     });
     map.attributionControl.setPrefix(false);
-    // CARTO basemaps: OSM data, but served from a CDN that permits application
-    // use. openstreetmap.org's own tiles are volunteer-run and block apps.
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      attribution: '© OpenStreetMap · © CARTO',
-      subdomains: 'abcd',
-      maxZoom: 19
-    }).addTo(map);
+    // Basemap providers, tried in order. openstreetmap.org's own tiles are
+    // volunteer-run and block applications; CARTO watermarks keyless use.
+    // Esri's tile services are open and need no API key. The rest are
+    // fallbacks so one provider going down never leaves a blank map.
+    const BASEMAPS = [
+      {
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+        attribution: '© Esri · © OpenStreetMap'
+      },
+      {
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+        attribution: '© Esri'
+      },
+      {
+        url: 'https://tile.opentopomap.org/{z}/{x}/{y}.png',
+        attribution: '© OpenTopoMap · © OpenStreetMap'
+      }
+    ];
+
+    let providerIndex = 0;
+    let tileErrors = 0;
+
+    const addBasemap = () => {
+      const spec = BASEMAPS[providerIndex];
+      const tiles = L.tileLayer(spec.url, { attribution: spec.attribution, maxZoom: 19 });
+      tiles.on('tileerror', () => {
+        tileErrors += 1;
+        // A few missing tiles at the edges is normal; a burst means the
+        // provider is refusing us, so fall through to the next one.
+        if (tileErrors > 6 && providerIndex < BASEMAPS.length - 1) {
+          providerIndex += 1;
+          tileErrors = 0;
+          map.removeLayer(tiles);
+          addBasemap();
+        }
+      });
+      tiles.addTo(map);
+    };
+
+    addBasemap();
 
     const layer = L.layerGroup().addTo(map);
     mapRef.current = map;
