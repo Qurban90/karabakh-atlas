@@ -468,6 +468,43 @@ textarea.field__input {
   background: #dfe6ee;
 }
 
+/* wrapper so the basemap switcher can sit over the canvas */
+.map-shell {
+  position: absolute;
+  inset: 0;
+}
+
+.map-views {
+  position: absolute;
+  right: 12px;
+  top: 108px;
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 3px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 14px rgba(24, 16, 48, 0.18);
+}
+
+.map-views__btn {
+  border: 0;
+  background: transparent;
+  color: #4a4363;
+  font: 600 11px/1 inherit;
+  letter-spacing: 0.02em;
+  padding: 7px 9px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.map-views__btn.is-on {
+  background: var(--purple, #6d28d9);
+  color: #fff;
+}
+
 .map-overlay-top {
   position: absolute;
   top: 0;

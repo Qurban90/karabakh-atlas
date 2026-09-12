@@ -1,7 +1,9 @@
 /**
  * Seed locations — Şuşa & Xankəndi, 2023–2026.
- * Coordinates were verified against OpenStreetMap (Overpass/Nominatim, 2026)
- * and match the surveyed position of each site; yearly statuses and figures
+ * Coordinates come from OpenStreetMap survey data (Overpass, 2026). Where the
+ * site has a mapped building footprint the value is that polygon's centroid,
+ * so the pin lands on the building itself rather than near it. The comment on
+ * each lng line records which source it came from. Statuses and figures
  * follow the public restoration narrative but are DEMO data for the app.
  *
  * status: damaged | restoring | construction | restored | active | planned
@@ -14,8 +16,8 @@ export const locationsSeed = [
     name: 'Yuxarı Gövhər Ağa məscidi',
     city: 'shusha',
     category: 'heritage',
-    lat: 39.76011,
-    lng: 46.75258,
+    lat: 39.76012,
+    lng: 46.752599,  // OSM building footprint centroid
     builtInfo: '1768–1885, memar Kərbəlayi Səfixan Qarabaği',
     shortDescription:
       'Şuşanın baş meydanındakı cüt minarəli məscid — şəhərin memarlıq simvollarından biri.',
@@ -44,8 +46,8 @@ export const locationsSeed = [
     name: 'Aşağı Gövhər Ağa məscidi',
     city: 'shusha',
     category: 'heritage',
-    lat: 39.76173,
-    lng: 46.75375,
+    lat: 39.761745,
+    lng: 46.753768,  // OSM building footprint centroid
     builtInfo: 'XIX əsr, memar Kərbəlayi Səfixan Qarabaği',
     shortDescription:
       'Şuşanın aşağı məhəlləsinin tarixi məscidi — Qarabağ memarlıq məktəbinin incisi.',
@@ -73,8 +75,8 @@ export const locationsSeed = [
     name: 'Şuşa qalası və Gəncə qapısı',
     city: 'shusha',
     category: 'heritage',
-    lat: 39.7659,
-    lng: 46.75032,
+    lat: 39.765896,
+    lng: 46.750319,  // OSM node - Ganja Gate
     builtInfo: '1750-ci illər, Pənahəli xan dövrü',
     shortDescription:
       'Şəhəri əhatə edən 2.5 km-lik qala divarları və şimal giriş qapısı — Gəncə qapısı.',
@@ -103,8 +105,8 @@ export const locationsSeed = [
     name: 'Cıdır düzü',
     city: 'shusha',
     category: 'culture_tourism',
-    lat: 39.75375,
-    lng: 46.76021,
+    lat: 39.753751,
+    lng: 46.760213,  // OSM viewpoint node
     builtInfo: 'Təbii yayla, festival məkanı',
     shortDescription:
       '“Xarıbülbül” festivalının ünvanı — Dağlıq Qarabağ silsiləsinə açılan əfsanəvi yayla.',
@@ -133,7 +135,7 @@ export const locationsSeed = [
     city: 'shusha',
     category: 'culture_tourism',
     lat: 39.74414,
-    lng: 46.70986,
+    lng: 46.70986,  // OSM spring node
     builtInfo: 'Tarixi bulaq kompleksi, meşə zonası',
     shortDescription:
       'Şuşa meşələrinin qoynunda tarixi bulaq — şəhər əhalisinin sevimli istirahət güşəsi.',
@@ -161,8 +163,8 @@ export const locationsSeed = [
     name: 'Xurşidbanu Natəvanın evi',
     city: 'shusha',
     category: 'heritage',
-    lat: 39.76483,
-    lng: 46.75077,
+    lat: 39.764834,
+    lng: 46.750766,  // OSM attraction node
     builtInfo: 'XIX əsr, xan qızı Natəvanın malikanəsi',
     shortDescription:
       'Şairə və xeyriyyəçi Xurşidbanu Natəvanın tarixi malikanəsi — gələcək ədəbiyyat muzeyi.',
@@ -191,7 +193,7 @@ export const locationsSeed = [
     city: 'shusha',
     category: 'heritage',
     lat: 39.7623,
-    lng: 46.7569,
+    lng: 46.7569,  // historic quarter, next to Bulbul house - approx
     builtInfo: 'XIX əsr yaşayış evi, 1959-dan muzey',
     shortDescription:
       'Azərbaycan professional musiqisinin banisi Üzeyir Hacıbəylinin doğulduğu ev.',
@@ -219,8 +221,8 @@ export const locationsSeed = [
     name: 'Bülbülün ev-muzeyi',
     city: 'shusha',
     category: 'heritage',
-    lat: 39.76261,
-    lng: 46.75733,
+    lat: 39.762593,
+    lng: 46.757311,  // OSM building footprint centroid (15x12 m)
     builtInfo: 'XIX əsr yaşayış evi, 1982-dən muzey',
     shortDescription:
       'Əfsanəvi xanəndə Bülbülün doğma evi — bərpadan sonra ilk açılan muzeylərdən.',
@@ -249,7 +251,7 @@ export const locationsSeed = [
     city: 'shusha',
     category: 'heritage',
     lat: 39.75546,
-    lng: 46.75833,
+    lng: 46.758329,  // OSM tomb node
     builtInfo: '1982, yenidən bərpa: 2021',
     shortDescription:
       'Şair və dövlət xadimi M.P.Vaqifin məqbərəsi — Şuşanın simvolik abidələrindən.',
@@ -277,8 +279,8 @@ export const locationsSeed = [
     name: '“Xarıbülbül” oteli',
     city: 'shusha',
     category: 'culture_tourism',
-    lat: 39.76128,
-    lng: 46.7418,
+    lat: 39.761293,
+    lng: 46.741819,  // OSM building footprint centroid
     builtInfo: '2023–2024, müasir tikili',
     shortDescription:
       'Şəhər girişindəki ilk yeni nəsil otel — Şuşa turizminin lokomotivi.',
@@ -306,8 +308,8 @@ export const locationsSeed = [
     name: 'Şuşa realnı məktəbi',
     city: 'shusha',
     category: 'education',
-    lat: 39.7533,
-    lng: 46.74389,
+    lat: 39.753359,
+    lng: 46.743768,  // OSM building
     builtInfo: '1881, tarixi təhsil ocağı',
     shortDescription:
       'Qafqazın ilk realnı məktəblərindən biri — yenidən təhsil ocağı kimi qurulur.',
@@ -337,8 +339,8 @@ export const locationsSeed = [
     name: 'Qarabağ Universiteti',
     city: 'khankendi',
     category: 'education',
-    lat: 39.82571,
-    lng: 46.75757,
+    lat: 39.825681,
+    lng: 46.75826,  // OSM amenity=university
     builtInfo: '2023-cü il fərmanı ilə təsis edilib',
     shortDescription:
       'Xankəndidə fəaliyyətə başlayan dövlət universiteti — regionun akademik mərkəzi.',
@@ -366,8 +368,8 @@ export const locationsSeed = [
     name: 'Xankəndi mərkəzi meydanı',
     city: 'khankendi',
     category: 'infrastructure',
-    lat: 39.81822,
-    lng: 46.75106,
+    lat: 39.816862,
+    lng: 46.751741,  // OSM city hall footprint centroid
     builtInfo: 'Yenidənqurma: 2024',
     shortDescription:
       'Şəhərin yenilənmiş baş meydanı — bayram tədbirlərinin və gəzintilərin ünvanı.',
@@ -395,8 +397,8 @@ export const locationsSeed = [
     name: 'Zəfər parkı',
     city: 'khankendi',
     category: 'culture_tourism',
-    lat: 39.81613,
-    lng: 46.74784,
+    lat: 39.815959,
+    lng: 46.747848,  // OSM park polygon centroid
     builtInfo: '2024–2025, yeni park kompleksi',
     shortDescription:
       'Xankəndinin yeni istirahət parkı — xatirə guşəsi, uşaq meydançaları və amfiteatr.',
@@ -423,8 +425,8 @@ export const locationsSeed = [
     name: 'Xankəndi Konqres Mərkəzi',
     city: 'khankendi',
     category: 'infrastructure',
-    lat: 39.81843,
-    lng: 46.75015,
+    lat: 39.8184,
+    lng: 46.750113,  // OSM building footprint centroid
     builtInfo: 'Yenidənqurma: 2023–2024',
     shortDescription:
       'Beynəlxalq tədbirlərə ev sahibliyi edən çoxfunksiyalı konqres kompleksi.',
@@ -452,8 +454,8 @@ export const locationsSeed = [
     name: 'Xankəndi (Xocalı) hava limanı',
     city: 'khankendi',
     category: 'energy_roads',
-    lat: 39.89885,
-    lng: 46.78676,
+    lat: 39.899155,
+    lng: 46.784677,  // OSM aerodrome polygon centroid
     builtInfo: 'Yenidənqurma: 2025–2026',
     shortDescription:
       'Regionun hava qapısına çevriləcək aeroport — yenidənqurma mərhələsindədir.',
@@ -481,7 +483,7 @@ export const locationsSeed = [
     city: 'khankendi',
     category: 'energy_roads',
     lat: 39.80392,
-    lng: 46.76797,
+    lng: 46.76797,  // OSM Lacin-Shusha-Khankendi road
     builtInfo: '2023–2025, 4 zolaqlı magistral',
     shortDescription:
       'Regionu ölkənin yol şəbəkəsinə bağlayan əsas magistral — 2025-də istifadəyə verilib.',
@@ -509,8 +511,8 @@ export const locationsSeed = [
     name: 'Xankəndi Yaşıl Enerji Qovşağı',
     city: 'khankendi',
     category: 'energy_roads',
-    lat: 39.8207,
-    lng: 46.73779,
+    lat: 39.828545,
+    lng: 46.754398,  // OSM electrical substation
     builtInfoNote: 'demo',
     builtInfo: '2025–2026, günəş + yarımstansiya',
     shortDescription:
@@ -537,8 +539,8 @@ export const locationsSeed = [
     name: '“Xanyurdu” ağıllı məhəlləsi',
     city: 'khankendi',
     category: 'smart_village',
-    lat: 39.84915,
-    lng: 46.74708,
+    lat: 39.849146,
+    lng: 46.747085,  // OSM village node
     builtInfoNote: 'demo',
     builtInfo: '2025–2026, ağıllı yaşayış kompleksi',
     shortDescription:

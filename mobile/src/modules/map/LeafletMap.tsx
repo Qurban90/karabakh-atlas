@@ -1,10 +1,18 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { LocationItem } from '../../api/types';
 import { pinIcon, clusterIcon } from './markerIcons';
 
 const CENTER: L.LatLngExpression = [39.795, 46.762]; // between Şuşa & Xankəndi
+
+type MapView = 'hybrid' | 'satellite' | 'street';
+
+const VIEWS: { id: MapView; label: string }[] = [
+  { id: 'hybrid', label: 'Hibrid' },
+  { id: 'satellite', label: 'Peyk' },
+  { id: 'street', label: 'Xəritə' }
+];
 const CLUSTER_BELOW_ZOOM = 13;
 const CELL_PX = 90;
 
@@ -46,6 +54,13 @@ export function LeafletMap({
   const divRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const layerRef = useRef<L.LayerGroup | null>(null);
+  const basemapsRef = useRef<{
+    imagery: L.TileLayer;
+    street: L.TileLayer;
+    roads: L.TileLayer;
+    places: L.TileLayer;
+  } | null>(null);
+  const [view, setView] = useState<MapView>('hybrid');
   const locationsRef = useRef(locations);
   const onSelectRef = useRef(onSelect);
   locationsRef.current = locations;
@@ -62,50 +77,43 @@ export function LeafletMap({
       attributionControl: true
     });
     map.attributionControl.setPrefix(false);
-    // Satellite basemap. openstreetmap.org's own tiles are volunteer-run and
-    // block applications; CARTO watermarks keyless use. Esri's imagery is open
-    // and needs no API key. Place names and roads ride on top as transparent
-    // reference layers, so the map reads as a map and not just a photo.
+    // Basemap. openstreetmap.org's own tiles are volunteer-run and block
+    // applications; CARTO watermarks keyless use. Esri's services are open and
+    // need no API key. Imagery is the default because the terrain of Susha and
+    // Khankendi is the point; the street view stays one tap away.
     const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services';
-
-    const BASEMAPS = [
-      { url: `${ESRI}/World_Imagery/MapServer/tile/{z}/{y}/{x}`, attribution: '© Esri · Maxar · Earthstar Geographics' },
-      { url: `${ESRI}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`, attribution: '© Esri · © OpenStreetMap' },
-      { url: 'https://tile.opentopomap.org/{z}/{x}/{y}.png', attribution: '© OpenTopoMap · © OpenStreetMap' }
-    ];
-
-    let providerIndex = 0;
-    let tileErrors = 0;
-
-    const addBasemap = () => {
-      const spec = BASEMAPS[providerIndex];
-      const tiles = L.tileLayer(spec.url, { attribution: spec.attribution, maxZoom: 18 });
-      tiles.on('tileerror', () => {
-        tileErrors += 1;
-        // A few missing tiles at the edges is normal; a burst means the
-        // provider is refusing us, so fall through to the next one.
-        if (tileErrors > 6 && providerIndex < BASEMAPS.length - 1) {
-          providerIndex += 1;
-          tileErrors = 0;
-          map.removeLayer(tiles);
-          addBasemap();
-        }
-      });
-      tiles.addTo(map);
-    };
-
-    addBasemap();
-
-    // Roads and place names over the imagery (transparent PNG overlays).
-    L.tileLayer(`${ESRI}/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}`, {
+    const imagery = L.tileLayer(`${ESRI}/World_Imagery/MapServer/tile/{z}/{y}/{x}`, {
+      attribution: '© Esri · Maxar · Earthstar Geographics',
+      maxZoom: 18
+    });
+    const street = L.tileLayer(`${ESRI}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`, {
+      attribution: '© Esri · © OpenStreetMap',
+      maxZoom: 18
+    });
+    // Roads and place names as transparent overlays, so the imagery still
+    // reads as a map. They ride above the basemap and below the pins.
+    const roads = L.tileLayer(`${ESRI}/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}`, {
       maxZoom: 18,
-      pane: 'overlayPane',
       opacity: 0.9
-    }).addTo(map);
-    L.tileLayer(`${ESRI}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, {
-      maxZoom: 18,
-      pane: 'overlayPane'
-    }).addTo(map);
+    });
+    const places = L.tileLayer(`${ESRI}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, {
+      maxZoom: 18
+    });
+
+    basemapsRef.current = { imagery, street, roads, places };
+    imagery.addTo(map);
+    roads.addTo(map);
+    places.addTo(map);
+
+    // If a provider starts refusing tiles the map must not go blank.
+    let tileErrors = 0;
+    imagery.on('tileerror', () => {
+      tileErrors += 1;
+      if (tileErrors > 6 && map.hasLayer(imagery)) {
+        map.removeLayer(imagery);
+        street.addTo(map);
+      }
+    });
 
     const layer = L.layerGroup().addTo(map);
     mapRef.current = map;
@@ -165,5 +173,38 @@ export function LeafletMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locations]);
 
-  return <div ref={divRef} className="map-canvas" />;
+  // basemap switching
+  useEffect(() => {
+    const map = mapRef.current;
+    const b = basemapsRef.current;
+    if (!map || !b) return;
+    const wanted = view === 'street' ? b.street : b.imagery;
+    const unwanted = view === 'street' ? b.imagery : b.street;
+    if (map.hasLayer(unwanted)) map.removeLayer(unwanted);
+    if (!map.hasLayer(wanted)) wanted.addTo(map);
+    for (const overlay of [b.roads, b.places]) {
+      const on = view !== 'satellite';
+      if (on && !map.hasLayer(overlay)) overlay.addTo(map);
+      if (!on && map.hasLayer(overlay)) map.removeLayer(overlay);
+    }
+  }, [view]);
+
+  return (
+    <div className="map-shell">
+      <div ref={divRef} className="map-canvas" />
+      <div className="map-views" role="group" aria-label="Xəritə görünüşü">
+        {VIEWS.map((v) => (
+          <button
+            key={v.id}
+            type="button"
+            className={`map-views__btn${view === v.id ? ' is-on' : ''}`}
+            aria-pressed={view === v.id}
+            onClick={() => setView(v.id)}
+          >
+            {v.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 }
