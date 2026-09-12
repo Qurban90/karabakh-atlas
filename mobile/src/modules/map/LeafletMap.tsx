@@ -62,8 +62,11 @@ export function LeafletMap({
       attributionControl: true
     });
     map.attributionControl.setPrefix(false);
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap',
+    // CARTO basemaps: OSM data, but served from a CDN that permits application
+    // use. openstreetmap.org's own tiles are volunteer-run and block apps.
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap · © CARTO',
+      subdomains: 'abcd',
       maxZoom: 19
     }).addTo(map);
 
