@@ -57,28 +57,21 @@ export function LeafletMap({
       center: CENTER,
       zoom: 12,
       minZoom: 9,
-      maxZoom: 17,
+      maxZoom: 18,
       zoomControl: false,
       attributionControl: true
     });
     map.attributionControl.setPrefix(false);
-    // Basemap providers, tried in order. openstreetmap.org's own tiles are
-    // volunteer-run and block applications; CARTO watermarks keyless use.
-    // Esri's tile services are open and need no API key. The rest are
-    // fallbacks so one provider going down never leaves a blank map.
+    // Satellite basemap. openstreetmap.org's own tiles are volunteer-run and
+    // block applications; CARTO watermarks keyless use. Esri's imagery is open
+    // and needs no API key. Place names and roads ride on top as transparent
+    // reference layers, so the map reads as a map and not just a photo.
+    const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services';
+
     const BASEMAPS = [
-      {
-        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-        attribution: '© Esri · © OpenStreetMap'
-      },
-      {
-        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-        attribution: '© Esri'
-      },
-      {
-        url: 'https://tile.opentopomap.org/{z}/{x}/{y}.png',
-        attribution: '© OpenTopoMap · © OpenStreetMap'
-      }
+      { url: `${ESRI}/World_Imagery/MapServer/tile/{z}/{y}/{x}`, attribution: '© Esri · Maxar · Earthstar Geographics' },
+      { url: `${ESRI}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`, attribution: '© Esri · © OpenStreetMap' },
+      { url: 'https://tile.opentopomap.org/{z}/{x}/{y}.png', attribution: '© OpenTopoMap · © OpenStreetMap' }
     ];
 
     let providerIndex = 0;
@@ -86,7 +79,7 @@ export function LeafletMap({
 
     const addBasemap = () => {
       const spec = BASEMAPS[providerIndex];
-      const tiles = L.tileLayer(spec.url, { attribution: spec.attribution, maxZoom: 19 });
+      const tiles = L.tileLayer(spec.url, { attribution: spec.attribution, maxZoom: 18 });
       tiles.on('tileerror', () => {
         tileErrors += 1;
         // A few missing tiles at the edges is normal; a burst means the
@@ -102,6 +95,17 @@ export function LeafletMap({
     };
 
     addBasemap();
+
+    // Roads and place names over the imagery (transparent PNG overlays).
+    L.tileLayer(`${ESRI}/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}`, {
+      maxZoom: 18,
+      pane: 'overlayPane',
+      opacity: 0.9
+    }).addTo(map);
+    L.tileLayer(`${ESRI}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, {
+      maxZoom: 18,
+      pane: 'overlayPane'
+    }).addTo(map);
 
     const layer = L.layerGroup().addTo(map);
     mapRef.current = map;

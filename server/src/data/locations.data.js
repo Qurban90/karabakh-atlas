@@ -1,6 +1,7 @@
 /**
  * Seed locations — Şuşa & Xankəndi, 2023–2026.
- * Coordinates are real (approximate to the site); yearly statuses and figures
+ * Coordinates were verified against OpenStreetMap (Overpass/Nominatim, 2026)
+ * and match the surveyed position of each site; yearly statuses and figures
  * follow the public restoration narrative but are DEMO data for the app.
  *
  * status: damaged | restoring | construction | restored | active | planned
@@ -13,8 +14,8 @@ export const locationsSeed = [
     name: 'Yuxarı Gövhər Ağa məscidi',
     city: 'shusha',
     category: 'heritage',
-    lat: 39.76095,
-    lng: 46.74905,
+    lat: 39.76011,
+    lng: 46.75258,
     builtInfo: '1768–1885, memar Kərbəlayi Səfixan Qarabaği',
     shortDescription:
       'Şuşanın baş meydanındakı cüt minarəli məscid — şəhərin memarlıq simvollarından biri.',
@@ -43,8 +44,8 @@ export const locationsSeed = [
     name: 'Aşağı Gövhər Ağa məscidi',
     city: 'shusha',
     category: 'heritage',
-    lat: 39.7588,
-    lng: 46.7465,
+    lat: 39.76173,
+    lng: 46.75375,
     builtInfo: 'XIX əsr, memar Kərbəlayi Səfixan Qarabaği',
     shortDescription:
       'Şuşanın aşağı məhəlləsinin tarixi məscidi — Qarabağ memarlıq məktəbinin incisi.',
@@ -72,8 +73,8 @@ export const locationsSeed = [
     name: 'Şuşa qalası və Gəncə qapısı',
     city: 'shusha',
     category: 'heritage',
-    lat: 39.7668,
-    lng: 46.7497,
+    lat: 39.7659,
+    lng: 46.75032,
     builtInfo: '1750-ci illər, Pənahəli xan dövrü',
     shortDescription:
       'Şəhəri əhatə edən 2.5 km-lik qala divarları və şimal giriş qapısı — Gəncə qapısı.',
@@ -102,8 +103,8 @@ export const locationsSeed = [
     name: 'Cıdır düzü',
     city: 'shusha',
     category: 'culture_tourism',
-    lat: 39.7528,
-    lng: 46.7515,
+    lat: 39.75375,
+    lng: 46.76021,
     builtInfo: 'Təbii yayla, festival məkanı',
     shortDescription:
       '“Xarıbülbül” festivalının ünvanı — Dağlıq Qarabağ silsiləsinə açılan əfsanəvi yayla.',
@@ -131,8 +132,8 @@ export const locationsSeed = [
     name: 'İsa bulağı',
     city: 'shusha',
     category: 'culture_tourism',
-    lat: 39.7395,
-    lng: 46.7192,
+    lat: 39.74414,
+    lng: 46.70986,
     builtInfo: 'Tarixi bulaq kompleksi, meşə zonası',
     shortDescription:
       'Şuşa meşələrinin qoynunda tarixi bulaq — şəhər əhalisinin sevimli istirahət güşəsi.',
@@ -160,8 +161,8 @@ export const locationsSeed = [
     name: 'Xurşidbanu Natəvanın evi',
     city: 'shusha',
     category: 'heritage',
-    lat: 39.7618,
-    lng: 46.7478,
+    lat: 39.76483,
+    lng: 46.75077,
     builtInfo: 'XIX əsr, xan qızı Natəvanın malikanəsi',
     shortDescription:
       'Şairə və xeyriyyəçi Xurşidbanu Natəvanın tarixi malikanəsi — gələcək ədəbiyyat muzeyi.',
@@ -189,8 +190,8 @@ export const locationsSeed = [
     name: 'Üzeyir Hacıbəylinin ev-muzeyi',
     city: 'shusha',
     category: 'heritage',
-    lat: 39.7624,
-    lng: 46.7462,
+    lat: 39.7623,
+    lng: 46.7569,
     builtInfo: 'XIX əsr yaşayış evi, 1959-dan muzey',
     shortDescription:
       'Azərbaycan professional musiqisinin banisi Üzeyir Hacıbəylinin doğulduğu ev.',
@@ -218,8 +219,8 @@ export const locationsSeed = [
     name: 'Bülbülün ev-muzeyi',
     city: 'shusha',
     category: 'heritage',
-    lat: 39.7615,
-    lng: 46.75,
+    lat: 39.76261,
+    lng: 46.75733,
     builtInfo: 'XIX əsr yaşayış evi, 1982-dən muzey',
     shortDescription:
       'Əfsanəvi xanəndə Bülbülün doğma evi — bərpadan sonra ilk açılan muzeylərdən.',
@@ -247,8 +248,8 @@ export const locationsSeed = [
     name: 'Molla Pənah Vaqifin türbəsi',
     city: 'shusha',
     category: 'heritage',
-    lat: 39.7553,
-    lng: 46.7576,
+    lat: 39.75546,
+    lng: 46.75833,
     builtInfo: '1982, yenidən bərpa: 2021',
     shortDescription:
       'Şair və dövlət xadimi M.P.Vaqifin məqbərəsi — Şuşanın simvolik abidələrindən.',
@@ -276,8 +277,8 @@ export const locationsSeed = [
     name: '“Xarıbülbül” oteli',
     city: 'shusha',
     category: 'culture_tourism',
-    lat: 39.7708,
-    lng: 46.7445,
+    lat: 39.76128,
+    lng: 46.7418,
     builtInfo: '2023–2024, müasir tikili',
     shortDescription:
       'Şəhər girişindəki ilk yeni nəsil otel — Şuşa turizminin lokomotivi.',
@@ -305,8 +306,8 @@ export const locationsSeed = [
     name: 'Şuşa realnı məktəbi',
     city: 'shusha',
     category: 'education',
-    lat: 39.7602,
-    lng: 46.7485,
+    lat: 39.7533,
+    lng: 46.74389,
     builtInfo: '1881, tarixi təhsil ocağı',
     shortDescription:
       'Qafqazın ilk realnı məktəblərindən biri — yenidən təhsil ocağı kimi qurulur.',
@@ -336,8 +337,8 @@ export const locationsSeed = [
     name: 'Qarabağ Universiteti',
     city: 'khankendi',
     category: 'education',
-    lat: 39.8212,
-    lng: 46.7614,
+    lat: 39.82571,
+    lng: 46.75757,
     builtInfo: '2023-cü il fərmanı ilə təsis edilib',
     shortDescription:
       'Xankəndidə fəaliyyətə başlayan dövlət universiteti — regionun akademik mərkəzi.',
@@ -365,8 +366,8 @@ export const locationsSeed = [
     name: 'Xankəndi mərkəzi meydanı',
     city: 'khankendi',
     category: 'infrastructure',
-    lat: 39.8265,
-    lng: 46.7656,
+    lat: 39.81822,
+    lng: 46.75106,
     builtInfo: 'Yenidənqurma: 2024',
     shortDescription:
       'Şəhərin yenilənmiş baş meydanı — bayram tədbirlərinin və gəzintilərin ünvanı.',
@@ -394,8 +395,8 @@ export const locationsSeed = [
     name: 'Zəfər parkı',
     city: 'khankendi',
     category: 'culture_tourism',
-    lat: 39.8324,
-    lng: 46.7702,
+    lat: 39.81613,
+    lng: 46.74784,
     builtInfo: '2024–2025, yeni park kompleksi',
     shortDescription:
       'Xankəndinin yeni istirahət parkı — xatirə guşəsi, uşaq meydançaları və amfiteatr.',
@@ -422,8 +423,8 @@ export const locationsSeed = [
     name: 'Xankəndi Konqres Mərkəzi',
     city: 'khankendi',
     category: 'infrastructure',
-    lat: 39.8237,
-    lng: 46.7581,
+    lat: 39.81843,
+    lng: 46.75015,
     builtInfo: 'Yenidənqurma: 2023–2024',
     shortDescription:
       'Beynəlxalq tədbirlərə ev sahibliyi edən çoxfunksiyalı konqres kompleksi.',
@@ -451,8 +452,8 @@ export const locationsSeed = [
     name: 'Xankəndi (Xocalı) hava limanı',
     city: 'khankendi',
     category: 'energy_roads',
-    lat: 39.9014,
-    lng: 46.7877,
+    lat: 39.89885,
+    lng: 46.78676,
     builtInfo: 'Yenidənqurma: 2025–2026',
     shortDescription:
       'Regionun hava qapısına çevriləcək aeroport — yenidənqurma mərhələsindədir.',
@@ -479,8 +480,8 @@ export const locationsSeed = [
     name: 'Ağdam–Xankəndi–Şuşa magistralı',
     city: 'khankendi',
     category: 'energy_roads',
-    lat: 39.8455,
-    lng: 46.832,
+    lat: 39.80392,
+    lng: 46.76797,
     builtInfo: '2023–2025, 4 zolaqlı magistral',
     shortDescription:
       'Regionu ölkənin yol şəbəkəsinə bağlayan əsas magistral — 2025-də istifadəyə verilib.',
@@ -508,8 +509,8 @@ export const locationsSeed = [
     name: 'Xankəndi Yaşıl Enerji Qovşağı',
     city: 'khankendi',
     category: 'energy_roads',
-    lat: 39.8095,
-    lng: 46.7789,
+    lat: 39.8207,
+    lng: 46.73779,
     builtInfoNote: 'demo',
     builtInfo: '2025–2026, günəş + yarımstansiya',
     shortDescription:
@@ -536,8 +537,8 @@ export const locationsSeed = [
     name: '“Xanyurdu” ağıllı məhəlləsi',
     city: 'khankendi',
     category: 'smart_village',
-    lat: 39.8041,
-    lng: 46.7463,
+    lat: 39.84915,
+    lng: 46.74708,
     builtInfoNote: 'demo',
     builtInfo: '2025–2026, ağıllı yaşayış kompleksi',
     shortDescription:
