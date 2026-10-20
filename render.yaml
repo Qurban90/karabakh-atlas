@@ -3,9 +3,9 @@
 # so one web service hosts everything; PORT is injected by Render.
 #
 # NOTE (existing services): Blueprints don't retro-sync settings into an
-# already-created service. If qdx-app predates the databases block below,
+# already-created service. If qarabag-dircelis predates the databases block below,
 # create the database once in the dashboard (New → PostgreSQL, Free) and add
-# its Internal Database URL to qdx-app as the DATABASE_URL env var.
+# its Internal Database URL to qarabag-dircelis as the DATABASE_URL env var.
 #
 # NOTE (build): mobile/.npmrc pins include=dev because Render injects
 # NODE_ENV=production into the build step, which would otherwise make npm
@@ -18,7 +18,7 @@ databases:
 
 services:
   - type: web
-    name: qdx-app
+    name: qarabag-dircelis
     runtime: node
     buildCommand: npm install --prefix server && npm install --include=dev --prefix mobile && npm run build --prefix mobile
     startCommand: npm run start --prefix server
